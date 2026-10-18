@@ -2,23 +2,6 @@
 
 The index includes valid BERT experiments and GCN experiments with case_sensitive_ordinal_v1 aspect alignment.
 
-Available: 72/90 planned formal results; 73 saved records including optional smoke tests.
-
-## Availability by model and experiment
-
-| Model | Category | Complete | Pending |
-|---|---|---:|---:|
-| bert | baseline | 6 | 0 |
-| bert | low_resource | 18 | 0 |
-| bert | cross_domain | 3 | 0 |
-| bert | epoch_sweep | 18 | 0 |
-| gcn | baseline | 6 | 0 |
-| gcn | low_resource | 18 | 0 |
-| gcn | cross_domain | 3 | 0 |
-| gcn | epoch_sweep | 0 | 18 |
-
-The full-data, reduced-data and cross-domain matrix contains 54 planned results. GCN epoch-budget extensions are listed separately as pending.
-
 ## Reports
 
 - [Every valid run](reports/all_metrics.csv)

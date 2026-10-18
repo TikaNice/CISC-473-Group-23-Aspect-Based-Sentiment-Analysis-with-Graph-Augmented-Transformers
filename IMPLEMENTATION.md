@@ -69,5 +69,3 @@ Validation covers aspect-alignment regression checks, valid JSON metrics, expect
 - Controlled no-graph/random-graph/identity-graph ablations, parser-noise analysis and MAMS evaluation remain unimplemented.
 - Three seeds measure training variation on one fixed split and fixed budget sample. Reported SD is not a confidence interval or significance test.
 - Dependency, pretrained-model and dataset revisions are not fully locked. requirements-current.txt is an environment snapshot; a clean-machine end-to-end reproduction remains unverified.
-
-ChatGPT/Codex assistance covered code generation, debugging, local execution, documentation and analysis drafts. Human review of the submitted interpretation and course-policy disclosure remain part of report preparation.
