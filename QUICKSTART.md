@@ -1,31 +1,8 @@
-# Running the ABSA experiments
+# Quickstart
 
-This project compares BERT and BERT + dependency GCN on SemEval-2014 Restaurant and Laptop. Commands below run from the project root. See [IMPLEMENTATION.md](IMPLEMENTATION.md) for architecture, sources and evaluation limitations.
+Run all commands from the project root. The project compares BERT with a BERT + dependency GCN model on SemEval-2014 Restaurant and Laptop.
 
-## Current Midterm correction (seed 42)
-
-```bash
-bash scripts/run_midterm_seed42.sh
-```
-
-This runs corrected BERT + GCN on Restaurant and Laptop, evaluates Restaurant → Laptop, then runs 10%/25%/50% training budgets. Matching BERT-only seed-42 records are reused. It skips already completed `aspectfix` results and writes progress to `results/reports/corrected_seed42.md` and `.csv`. Epoch sweeps are deferred. Corrected checkpoints save model weights without optimizer state.
-
-
-Rebuild only the corrected comparison:
-
-```bash
-python -m scripts.summarize_corrected --seed 42
-```
-
-## Environment
-
-Activate the existing environment:
-
-```bash
-source .venv/bin/activate
-```
-
-For a fresh installation:
+## 1. Set up the environment
 
 ```bash
 python3 -m venv .venv
@@ -34,84 +11,101 @@ python -m pip install -r requirements.txt
 python -m spacy download en_core_web_sm
 ```
 
-`requirements-current.txt` records the environment used during the project audit. It is provided as a version reference; `requirements.txt` contains the supported version ranges.
+For an existing installation, activate it with `source .venv/bin/activate`. The first training run downloads `bert-base-uncased` if it is not already cached. `requirements-current.txt` records the versions used in the local experiment environment.
 
-## Data
+## 2. Prepare the data
 
-Skip this section if the data files are already present.
+Download the training data:
 
 ```bash
 python scripts/download_data.py
 ```
 
-Obtain the official SemEval-2014 Task 4 Gold Test XML files (available from the [SemEval2014Task4 dataset](https://huggingface.co/datasets/alexcadillon/SemEval2014Task4)). Place `Restaurants_Test_Gold.xml` and `Laptops_Test_Gold.xml` in `data/gold/`, then convert them:
+Download the official Gold Test XML files from [SemEval2014Task4](https://huggingface.co/datasets/alexcadillon/SemEval2014Task4), and save them as:
+
+```text
+data/gold/Restaurants_Test_Gold.xml
+data/gold/Laptops_Test_Gold.xml
+```
+
+Convert the XML files:
 
 ```bash
 python scripts/prepare_gold.py
 ```
 
-Training uses `data/raw/<domain>/train.jsonl`. Final testing uses `data/processed/<domain>/test_gold.jsonl`. The task has three sentiment classes; conflict labels are excluded. The downloaded raw test JSONL files have empty sentiment labels and are not used for scoring.
+Training reads `data/raw/<domain>/train.jsonl`; evaluation reads `data/processed/<domain>/test_gold.jsonl`. The task uses positive, neutral and negative labels, excluding conflict. The raw test files downloaded in the first step have empty sentiment labels and are not used for scoring.
 
-## Experiments
+## 3. Run experiments
 
-### Full-data baseline
+Both models use a learning rate of `2e-5`, weight decay of `0.01`, batch size of `8`, maximum sequence length of `128`, and no warmup. Full-data and low-resource runs train for up to `3` epochs and select the best checkpoint by validation Macro-F1. Run seeds are `42`, `43` and `44`; the validation split and sentence-group sampling use seed `2026`.
 
-Run both models on both domains with seeds 42, 43 and 44, using 3 epochs and batch size 8:
+### Full-data comparison
+
+Run both models on both datasets with all three seeds:
 
 ```bash
 FRACTIONS=1 bash scripts/run_low_resource.sh
 ```
 
-The same runner supports both full-data and reduced-data experiments. To run one model directly:
+To train a single model:
 
 ```bash
 python -m src.train_bert --domain restaurant --epochs 3 --batch-size 8 --seed 42
 python -m src.train_gcn --domain restaurant --epochs 3 --batch-size 8 --seed 42
 ```
 
-For a short check of the training pipeline, add `--smoke` to either command. Smoke results are excluded from benchmark tables.
+### Low-resource comparison
 
-### Low-resource experiments
-
-Train on 10%, 25% and 50% of the training sentence groups:
+Run both models with 10%, 25% and 50% of the training sentence groups:
 
 ```bash
 FRACTIONS="0.1 0.25 0.5" bash scripts/run_low_resource.sh
 ```
 
-The default covers both models, both domains and all three seeds. To restrict the run:
+Use the runner's variables to select a subset. For example:
 
 ```bash
-DOMAINS=restaurant MODELS=gcn SEEDS=42 FRACTIONS=0.25 bash scripts/run_low_resource.sh
+DOMAINS=laptop MODELS=gcn SEEDS="43 44" FRACTIONS=0.25 bash scripts/run_low_resource.sh
 ```
-
-### Epoch experiments
-
-Compare independent training runs with budgets of 1, 2 and 4 epochs:
-
-```bash
-bash scripts/run_epoch_sweep.sh
-```
-
-The 3-epoch comparison reuses the full-data baseline. To run a subset:
-
-```bash
-DOMAINS=laptop MODELS=bert SEEDS=42 EPOCHS="1 2" bash scripts/run_epoch_sweep.sh
-```
-
-Each run selects its best checkpoint by validation Macro-F1. The epoch budget does not necessarily equal the epoch of the selected checkpoint.
 
 ### Cross-domain evaluation
 
-Evaluate Restaurant-trained baseline checkpoints on the Laptop test set:
+Evaluate the Restaurant-trained models on the Laptop Gold Test set:
 
 ```bash
 python -m scripts.eval_cross_domain --model all --seeds 42 43 44
 ```
 
-This performs inference only. BERT needs its Restaurant baseline checkpoints; GCN needs the corresponding corrected aspectfix checkpoints. Corrected GCN seeds 43/44 must be trained before evaluating them. For current GCN results use `--model gcn --seeds 42`. Add `--overwrite` to recompute existing results.
+This runs inference using each model's best Restaurant validation checkpoint. The checkpoints must be available locally; result JSONs alone are not enough. Use `--model bert` or `--model gcn` to select a model, and `--seeds 42` to evaluate one seed. Add `--overwrite` to replace existing cross-domain results.
 
-### Complete experiment pipeline
+### Epoch-budget comparison
+
+Run separate experiments with budgets of 1, 2 and 4 epochs:
+
+```bash
+bash scripts/run_epoch_sweep.sh
+```
+
+The 3-epoch results come from the full-data comparison. To select a subset:
+
+```bash
+DOMAINS=laptop MODELS=bert SEEDS=42 EPOCHS="1 2" bash scripts/run_epoch_sweep.sh
+```
+
+Each run still selects its best checkpoint by validation Macro-F1, so the selected checkpoint may come from an earlier epoch.
+
+### Continue GCN experiments
+
+If the matching BERT results already exist, this runner completes GCN full-data, cross-domain and low-resource experiments and refreshes the reports after each result:
+
+```bash
+SEEDS="43 44" bash scripts/run_midterm_seeds.sh
+```
+
+It activates `.venv` automatically. Set `SEEDS="42 43 44"` to cover all three seeds. Run only one training runner at a time.
+
+### Run the complete experiment matrix
 
 After preparing the environment and data:
 
@@ -119,54 +113,59 @@ After preparing the environment and data:
 bash scripts/reproduce.sh
 ```
 
-This runs full-data, low-resource and epoch experiments, evaluates cross-domain transfer, and rebuilds the summaries. Smoke tests are optional and are included in the run table only when present. The batch runners reuse existing result JSONs. Direct training commands rerun the requested experiment and can overwrite its result and checkpoint; use a distinct `--run-tag` for a separate run.
+This includes full-data, low-resource and epoch-budget training, cross-domain evaluation, and report generation. Batch runners skip existing result JSONs. Direct training commands rerun the requested experiment and can overwrite its files.
 
-## Summaries
+## 4. Read and rebuild reports
 
-These commands read all available valid BERT and corrected GCN results without training. Pending runs are listed explicitly; single-seed groups have no standard deviation:
+Start with [results/INDEX.md](results/INDEX.md) for available experiments. To rebuild the aggregate tables without training:
 
 ```bash
 python -m scripts.summarize_results
 python -m scripts.summarize_sweeps
 ```
 
-| Output in `results/reports/` | Contents |
-|---|---|
-| `all_metrics.csv` | One row per valid run, including optional smoke tests |
-| `experiment_status.csv` | Completed and pending runs in the planned matrix |
-| `summary_by_group.csv` | Available groups with seed counts; SD only when at least two valid runs exist |
-| `baseline_summary.csv` | Full-data comparison |
-| `cross_domain_summary.csv` | Restaurant → Laptop comparison |
-| `low_resource_summary.csv` | Data-budget comparison, including the baseline |
-| `epoch_sweep_summary.csv` | Epoch-budget comparison, including the baseline |
-| `all_json_full.txt` | Full text of the experiment JSONs |
+Reports are saved in `results/reports/`:
 
-Extract validation history from retained epoch-4 checkpoints or the archived training metadata:
+| File | Contents |
+|---|---|
+| `baseline_summary.csv` | Full-data comparison |
+| `low_resource_summary.csv` | Training-data budgets, including full data |
+| `cross_domain_summary.csv` | Restaurant-to-Laptop evaluation |
+| `epoch_sweep_summary.csv` | Epoch-budget comparison |
+| `all_metrics.csv` | Individual run metrics |
+| `summary_by_group.csv` | Group means, sample standard deviations and seed counts |
+| `experiment_status.csv` | Completed and pending runs |
+
+Missing runs are marked as pending. Groups with one completed seed have no standard deviation. Smoke tests are excluded from grouped benchmark statistics.
+
+For a comparison at one seed:
+
+```bash
+python -m scripts.summarize_corrected --seed 42
+```
+
+This writes `corrected_seed42.csv` and `corrected_seed42.md`. Change the seed to `43` or `44` as needed.
+
+## 5. Output files
+
+- `results/`: experiment JSONs, reports and diagnostic records. Current GCN runs carry the `aspectfix` tag and are stored under `custom/<domain>/gcn/`; cross-domain results use `cross_domain/restaurant_to_laptop/`.
+- `checkpoints/`: locally saved models and training metadata, excluded from Git. See [CHECKPOINTS.md](CHECKPOINTS.md) for storage details.
+- `logs/`: training output, excluded from Git.
+
+For model structure, data splits and evaluation limitations, see [IMPLEMENTATION.md](IMPLEMENTATION.md).
+
+## 6. Optional checks
+
+Add `--smoke` to a direct training command for a short pipeline check. Run the aspect-alignment regression checks with:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+To extract validation history from retained epoch-4 checkpoints or the local Trainer metadata archive:
 
 ```bash
 python -m scripts.extract_epoch_validation_curve
 ```
 
-The resulting `epoch_validation_learning_curve.csv` can be incomplete because only selected checkpoints were retained. Optimizer state and nonessential model weights have been removed; archived Trainer metadata still supports this command. `epoch4_validation_from_logs.csv` retains the 24 valid BERT validation points. Invalid legacy GCN curve rows were removed; corrected GCN epoch-4 runs have not been trained.
-
-## Output layout
-
-New training results and checkpoints use the same experiment categories. The retained checkpoints include BERT baselines and newly corrected GCN models; old GCN weights are not used for current results:
-
-```text
-results/                              checkpoints/
-├── baseline/<domain>/<model>/         ├── baseline/<domain>/<model>/
-├── low_resource/<domain>/<model>/     ├── low_resource/<domain>/<model>/
-│   └── <percent>_percent/             │   └── <percent>_percent/
-├── epoch_sweep/<domain>/<model>/      ├── epoch_sweep/<domain>/<model>/
-│   └── epochs_<n>/                   │   └── epochs_<n>/
-├── smoke/<domain>/<model>/            └── smoke/<domain>/<model>/
-├── cross_domain/restaurant_to_laptop/
-└── reports/
-```
-
-Each result is a JSON file. Each checkpoint run is a directory containing `checkpoint-<step>/`. Additional run tags or unsupported data fractions are placed under `custom/`.
-
-See [CHECKPOINTS.md](CHECKPOINTS.md) for retained model files. Experimental limitations and sample overlaps are described in [IMPLEMENTATION.md](IMPLEMENTATION.md) and `results/reports/data-split-audit.json`. Historical checkpoints and their metadata archive are not included in a Git clone; saved CSVs remain available, and training creates new checkpoints.
-
-Regression checks for the aspect correction: `python -m unittest discover -s tests -v`. Corrected GCN run tags are automatically prefixed with `aspectfix` so the old JSONs are preserved.
+The extracted history may be incomplete if the required checkpoints or metadata are unavailable.
