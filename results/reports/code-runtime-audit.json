@@ -1,0 +1,28 @@
+{
+  "restaurant": {
+    "encoded_train": 3602,
+    "encoded_test": 1120,
+    "encoding_errors": 0,
+    "gold_regeneration_identical": true,
+    "raw_test_labels_empty": true
+  },
+  "laptop": {
+    "encoded_train": 2313,
+    "encoded_test": 638,
+    "encoding_errors": 0,
+    "gold_regeneration_identical": true,
+    "raw_test_labels_empty": true
+  },
+  "gcn_forward_backward": {
+    "batch_size": 4,
+    "finite_loss": true,
+    "bert_and_gcn_gradients": true
+  },
+  "bert_forward": {
+    "finite_loss": true,
+    "logits_shape": [
+      2,
+      3
+    ]
+  }
+}

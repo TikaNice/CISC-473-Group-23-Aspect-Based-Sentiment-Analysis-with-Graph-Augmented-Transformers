@@ -1,4 +1,6 @@
 """Train BERT + dependency GCN. Run: python -m src.train_gcn --domain restaurant --smoke"""
+from src.result_paths import result_path, checkpoint_dir
+
 import argparse
 import json
 import random
@@ -24,7 +26,7 @@ def find_aspect(text, span, row):
     # Prefer verified XML offsets when available.
     start, end = row.get("start"), row.get("end")
     if isinstance(start, int) and isinstance(end, int):
-        if text[start:end] == span:
+        if 0 <= start < end <= len(text) and text[start:end] == span:
             return start, end
         raise ValueError("Invalid provided aspect offsets")
 
@@ -38,11 +40,11 @@ def find_aspect(text, span, row):
 
     positions = []
     pos = 0
-    lowered = text.lower()
-    target = span.lower()
+    source = text
+    target = span
 
     while True:
-        found = lowered.find(target, pos)
+        found = source.find(target, pos)
         if found == -1:
             break
         positions.append(found)
@@ -126,9 +128,16 @@ def main():
     p.add_argument('--seed', type=int, default=42)
     p.add_argument('--train-fraction', type=float, default=1.)
     p.add_argument('--smoke', action='store_true')
+    p.add_argument('--run-tag', default='', type=str)
     args = p.parse_args()
+    if not args.run_tag:
+        args.run_tag = 'aspectfix' if args.epochs == 3 else f'aspectfix_ep{args.epochs:g}'
+    elif not args.run_tag.startswith('aspectfix'):
+        args.run_tag = 'aspectfix_' + args.run_tag
     if not 0 < args.train_fraction <= 1:
         p.error('--train-fraction must be in (0,1]')
+    if not args.smoke and not Path(f'data/processed/{args.domain}/test_gold.jsonl').is_file():
+        p.error('Missing Gold Test JSONL; run scripts/prepare_gold.py before formal training')
     random.seed(args.seed); np.random.seed(args.seed); torch.manual_seed(args.seed)
     tr, val = split_by_sentence(read_jsonl(f'data/raw/{args.domain}/train.jsonl'))
     tr = choose_train_fraction(tr, args.train_fraction)
@@ -162,8 +171,9 @@ def main():
             audit_file = audit_dir / f"gcn_{args.domain}_skipped.jsonl"
             with audit_file.open("a", encoding="utf-8") as f:
                 for record in skipped:
-                    f.write(json.dumps(record, ensure_ascii=False) + "\\n")
+                    f.write(json.dumps(record, ensure_ascii=False) + "\n")
             print("Skipped-record audit:", audit_file)
+            raise ValueError("Corrected runs require all records to encode; inspect the audit before training")
 
         if not encoded:
             raise ValueError("No valid records remain after encoding")
@@ -172,15 +182,19 @@ def main():
     train_ds, val_ds = ds(tr), ds(val)
     model = BertDependencyGCN(model_name=MODEL)
     suffix = f'{args.domain}_fraction{args.train_fraction:g}_seed{args.seed}' + ('_smoke' if args.smoke else '')
+    if args.run_tag:
+        if not args.run_tag.replace('_', '').replace('-', '').isalnum():
+            raise ValueError('--run-tag must contain letters, digits, _ or -')
+        suffix += '_' + args.run_tag
     opts = TrainingArguments(
-        output_dir=f'checkpoints/gcn_{suffix}',
+        output_dir=str(checkpoint_dir('gcn', args.domain, args.train_fraction, args.seed, args.run_tag, args.smoke)),
         num_train_epochs=1 if args.smoke else args.epochs,
         per_device_train_batch_size=args.batch_size,
         per_device_eval_batch_size=args.batch_size,
         learning_rate=2e-5, weight_decay=0.01,
         eval_strategy='epoch', save_strategy='epoch',
         load_best_model_at_end=True, metric_for_best_model='macro_f1',
-        greater_is_better=True, save_total_limit=1,
+        greater_is_better=True, save_total_limit=1, save_only_model=True,
         seed=args.seed, data_seed=DATA_SPLIT_SEED,
         report_to='none', dataloader_num_workers=0,
         dataloader_pin_memory=False, fp16=False, bf16=False,
@@ -199,6 +213,11 @@ def main():
     result = {
         'experiment': suffix, 'model_type': 'BERT pair + 2-layer dependency GCN + aspect pooling',
         'device': str(trainer.args.device), 'seed': args.seed,
+        'aspect_alignment': 'case_sensitive_ordinal_v1',
+        'training_config': {'learning_rate': 2e-5, 'weight_decay': 0.01,
+                            'epochs': args.epochs, 'batch_size': args.batch_size,
+                            'max_length': MAX_LENGTH, 'split_seed': DATA_SPLIT_SEED,
+                            'selection_metric': 'validation_macro_f1', 'warmup_ratio': 0.0},
         'train_size': len(tr), 'validation_size': len(val),
         'validation_metrics': trainer.evaluate(val_ds),
     }
@@ -210,7 +229,7 @@ def main():
             result['final_test_metrics'] = trainer.evaluate(ds(test_rows), metric_key_prefix='test')
         else:
             print(f'WARNING: missing gold data {gold}; skipping test')
-    out = Path(f'results/gcn_{suffix}.json')
+    out = result_path('gcn', args.domain, args.train_fraction, args.seed, args.run_tag, args.smoke)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(result, indent=2, default=float), encoding='utf-8')
     print('Saved:', out)

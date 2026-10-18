@@ -1,0 +1,38 @@
+{
+  "experiment": "laptop_fraction0.5_seed42_aspectfix",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "mps",
+  "seed": 42,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 1068,
+  "validation_size": 221,
+  "validation_metrics": {
+    "eval_loss": 0.7947155833244324,
+    "eval_accuracy": 0.7375565610859729,
+    "eval_macro_f1": 0.6931718941575623,
+    "eval_runtime": 1.8004,
+    "eval_samples_per_second": 122.748,
+    "eval_steps_per_second": 15.552,
+    "epoch": 3.0
+  },
+  "test_size": 638,
+  "final_test_metrics": {
+    "test_loss": 0.6728106141090393,
+    "test_accuracy": 0.7539184952978056,
+    "test_macro_f1": 0.6969892509936306,
+    "test_runtime": 5.1734,
+    "test_samples_per_second": 123.322,
+    "test_steps_per_second": 15.464,
+    "epoch": 3.0
+  }
+}

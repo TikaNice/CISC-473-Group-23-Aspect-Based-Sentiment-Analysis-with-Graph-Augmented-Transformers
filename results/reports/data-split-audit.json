@@ -1,0 +1,28 @@
+{
+  "restaurant": {
+    "train": 3240,
+    "validation": 362,
+    "test": 1120,
+    "train_test_overlap": 1,
+    "validation_test_overlap": 0,
+    "fractions": {
+      "0.1": 335,
+      "0.25": 794,
+      "0.5": 1604,
+      "1": 3240
+    }
+  },
+  "laptop": {
+    "train": 2092,
+    "validation": 221,
+    "test": 638,
+    "train_test_overlap": 0,
+    "validation_test_overlap": 1,
+    "fractions": {
+      "0.1": 221,
+      "0.25": 527,
+      "0.5": 1068,
+      "1": 2092
+    }
+  }
+}

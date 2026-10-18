@@ -1,0 +1,324 @@
+{
+  "restaurant": {
+    "legacy_mismatches": 7,
+    "exact_mismatches": 0,
+    "not_matched_to_xml": 0,
+    "examples": [
+      {
+        "text": "Ess-A-Bagel (either by Sty-town or midtown) is by far the best bagel in NY.",
+        "span": "bagel",
+        "label": "positive",
+        "ordinal": 0,
+        "legacy_offsets": [
+          6,
+          11
+        ],
+        "exact_offsets": [
+          63,
+          68
+        ],
+        "gold_offsets": [
+          [
+            63,
+            68
+          ]
+        ]
+      },
+      {
+        "text": "Pizza - the only pizza in NYC that should not have additional toppings - the crust tastes like the best, freshly baked bread!",
+        "span": "pizza",
+        "label": "positive",
+        "ordinal": 0,
+        "legacy_offsets": [
+          0,
+          5
+        ],
+        "exact_offsets": [
+          17,
+          22
+        ],
+        "gold_offsets": [
+          [
+            17,
+            22
+          ]
+        ]
+      },
+      {
+        "text": "Bartender was unable to tear himself away from friends at bar.",
+        "span": "bar",
+        "label": "neutral",
+        "ordinal": 0,
+        "legacy_offsets": [
+          0,
+          3
+        ],
+        "exact_offsets": [
+          58,
+          61
+        ],
+        "gold_offsets": [
+          [
+            58,
+            61
+          ]
+        ]
+      },
+      {
+        "text": "I ordered a Chicken Teriyaki dish and found that the chicken was extremely dry.",
+        "span": "chicken",
+        "label": "negative",
+        "ordinal": 0,
+        "legacy_offsets": [
+          12,
+          19
+        ],
+        "exact_offsets": [
+          53,
+          60
+        ],
+        "gold_offsets": [
+          [
+            53,
+            60
+          ]
+        ]
+      },
+      {
+        "text": "They had scrapped the bottom of the vessel in which they make the rice -RESULT - WE HAD LARGE CHUNKS OF BURNT RICE IN OUR SERVING BOWL.",
+        "span": "RICE",
+        "label": "negative",
+        "ordinal": 0,
+        "legacy_offsets": [
+          66,
+          70
+        ],
+        "exact_offsets": [
+          110,
+          114
+        ],
+        "gold_offsets": [
+          [
+            110,
+            114
+          ]
+        ]
+      },
+      {
+        "text": "We figured we never had Argentinian Pizza before so we grabbed our lunch there, sharing a large Pelligrino, a pizza of two of their specials, one was goat cheese the other blue cheese, and both were excellent.",
+        "span": "pizza",
+        "label": "positive",
+        "ordinal": 0,
+        "legacy_offsets": [
+          36,
+          41
+        ],
+        "exact_offsets": [
+          110,
+          115
+        ],
+        "gold_offsets": [
+          [
+            110,
+            115
+          ]
+        ]
+      },
+      {
+        "text": "I highly recommend Caviar Russe to anyone who wants delicious top grade caviar and fantastic service.",
+        "span": "caviar",
+        "label": "positive",
+        "ordinal": 0,
+        "legacy_offsets": [
+          19,
+          25
+        ],
+        "exact_offsets": [
+          72,
+          78
+        ],
+        "gold_offsets": [
+          [
+            72,
+            78
+          ]
+        ]
+      }
+    ]
+  },
+  "laptop": {
+    "legacy_mismatches": 8,
+    "exact_mismatches": 0,
+    "not_matched_to_xml": 0,
+    "examples": [
+      {
+        "text": "The OS is also very user friendly, even for those that switch from a PC, with a little practice you can take full advantage of this OS!",
+        "span": "OS",
+        "label": "positive",
+        "ordinal": 1,
+        "legacy_offsets": [
+          46,
+          48
+        ],
+        "exact_offsets": [
+          132,
+          134
+        ],
+        "gold_offsets": [
+          [
+            4,
+            6
+          ],
+          [
+            132,
+            134
+          ]
+        ]
+      },
+      {
+        "text": "Fan noise: The fan made a constant hissing noise in the background.",
+        "span": "fan",
+        "label": "negative",
+        "ordinal": 0,
+        "legacy_offsets": [
+          0,
+          3
+        ],
+        "exact_offsets": [
+          15,
+          18
+        ],
+        "gold_offsets": [
+          [
+            15,
+            18
+          ]
+        ]
+      },
+      {
+        "text": "Battery is not upgradable to a longer life battery.",
+        "span": "battery",
+        "label": "negative",
+        "ordinal": 0,
+        "legacy_offsets": [
+          0,
+          7
+        ],
+        "exact_offsets": [
+          43,
+          50
+        ],
+        "gold_offsets": [
+          [
+            43,
+            50
+          ]
+        ]
+      },
+      {
+        "text": "Screen, keyboard, and mouse: If you cant see yourself spending the extra money to jump up to a Mac the beautiful screen, responsive island backlit keyboard, and fun multi-touch mouse is worth the extra money to me alone.",
+        "span": "screen",
+        "label": "positive",
+        "ordinal": 0,
+        "legacy_offsets": [
+          0,
+          6
+        ],
+        "exact_offsets": [
+          113,
+          119
+        ],
+        "gold_offsets": [
+          [
+            113,
+            119
+          ]
+        ]
+      },
+      {
+        "text": "Needs Power and Mouse Cable to Plug in back instead of side, In the way of operating a mouse in small area.",
+        "span": "mouse",
+        "label": "negative",
+        "ordinal": 0,
+        "legacy_offsets": [
+          16,
+          21
+        ],
+        "exact_offsets": [
+          87,
+          92
+        ],
+        "gold_offsets": [
+          [
+            87,
+            92
+          ]
+        ]
+      },
+      {
+        "text": "Quality Display  I was surprised with the performance and quality of this HP Laptop.",
+        "span": "quality",
+        "label": "positive",
+        "ordinal": 0,
+        "legacy_offsets": [
+          0,
+          7
+        ],
+        "exact_offsets": [
+          58,
+          65
+        ],
+        "gold_offsets": [
+          [
+            58,
+            65
+          ]
+        ]
+      },
+      {
+        "text": "I wish Toshiba would allow their customers to select an option that only boots the OS at setup and removes all the unnecessary stuff.",
+        "span": "OS",
+        "label": "neutral",
+        "ordinal": 0,
+        "legacy_offsets": [
+          8,
+          10
+        ],
+        "exact_offsets": [
+          83,
+          85
+        ],
+        "gold_offsets": [
+          [
+            83,
+            85
+          ]
+        ]
+      },
+      {
+        "text": "Cords coming out the right for power plus cords coming out front for headphones/mic plus network connection on left make for a very messy setup with cords going every direction.",
+        "span": "cords",
+        "label": "negative",
+        "ordinal": 0,
+        "legacy_offsets": [
+          0,
+          5
+        ],
+        "exact_offsets": [
+          42,
+          47
+        ],
+        "gold_offsets": [
+          [
+            42,
+            47
+          ],
+          [
+            149,
+            154
+          ]
+        ]
+      }
+    ]
+  }
+}

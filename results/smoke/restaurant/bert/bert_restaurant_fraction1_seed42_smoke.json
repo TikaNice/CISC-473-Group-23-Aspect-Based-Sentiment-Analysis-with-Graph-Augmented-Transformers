@@ -1,0 +1,18 @@
+{
+  "experiment": "restaurant_fraction1_seed42_smoke",
+  "seed": 42,
+  "train_size": 64,
+  "validation_size": 32,
+  "model": "bert-base-uncased",
+  "model_type": "BERT sentence-aspect pair, CLS",
+  "device": "mps",
+  "validation_metrics": {
+    "eval_loss": 1.0761210918426514,
+    "eval_accuracy": 0.4375,
+    "eval_macro_f1": 0.2913806254767353,
+    "eval_runtime": 0.2746,
+    "eval_samples_per_second": 116.54,
+    "eval_steps_per_second": 14.567,
+    "epoch": 1.0
+  }
+}

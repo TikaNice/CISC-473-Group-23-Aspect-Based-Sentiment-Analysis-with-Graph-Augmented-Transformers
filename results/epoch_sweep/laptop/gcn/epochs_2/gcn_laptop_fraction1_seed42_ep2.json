@@ -1,0 +1,27 @@
+{
+  "experiment": "laptop_fraction1_seed42_ep2",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "mps",
+  "seed": 42,
+  "train_size": 2092,
+  "validation_size": 221,
+  "validation_metrics": {
+    "eval_loss": 0.6933872699737549,
+    "eval_accuracy": 0.7104072398190046,
+    "eval_macro_f1": 0.6653405465390484,
+    "eval_runtime": 1.9297,
+    "eval_samples_per_second": 114.525,
+    "eval_steps_per_second": 14.51,
+    "epoch": 2.0
+  },
+  "test_size": 638,
+  "final_test_metrics": {
+    "test_loss": 0.5631113052368164,
+    "test_accuracy": 0.7601880877742947,
+    "test_macro_f1": 0.6946695739148128,
+    "test_runtime": 5.406,
+    "test_samples_per_second": 118.016,
+    "test_steps_per_second": 14.798,
+    "epoch": 2.0
+  }
+}

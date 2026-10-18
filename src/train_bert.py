@@ -6,6 +6,8 @@ Example: python -m src.train_bert --domain restaurant --smoke
 Uses group-disjoint validation split, 3-class polarity labels, and test gold only
 for FINAL evaluation (never for checkpoint selection). No reported results are fabricated.
 """
+from src.result_paths import result_path, checkpoint_dir
+
 import argparse
 import json
 import math
@@ -75,7 +77,10 @@ def main():
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--train-fraction', type=float, default=1.0)
     parser.add_argument('--smoke', action='store_true')
+    parser.add_argument('--run-tag', default='', type=str)
     args = parser.parse_args()
+    if not args.smoke and not args.run_tag and args.epochs != 3:
+        args.run_tag = f'ep{args.epochs:g}'
     if not 0 < args.train_fraction <= 1:
         parser.error('--train-fraction must be in (0,1]')
 
@@ -103,7 +108,11 @@ def main():
     val_ds = make_dataset(val_rows, tokenizer)
 
     suffix = f'{args.domain}_fraction{args.train_fraction:g}_seed{args.seed}' + ('_smoke' if args.smoke else '')
-    output_dir = f'checkpoints/bert_{suffix}'
+    if args.run_tag:
+        if not args.run_tag.replace('_', '').replace('-', '').isalnum():
+            raise ValueError('--run-tag must contain letters, digits, _ or -')
+        suffix += '_' + args.run_tag
+    output_dir = str(checkpoint_dir('bert', args.domain, args.train_fraction, args.seed, args.run_tag, args.smoke))
     training_args = TrainingArguments(
         output_dir=output_dir,
         num_train_epochs=1 if args.smoke else args.epochs,
@@ -154,7 +163,7 @@ def main():
         else:
             print(f'WARNING: {test_gold} not found; skipping official test metrics')
 
-    target = Path(f'results/bert_{suffix}.json')
+    target = result_path('bert', args.domain, args.train_fraction, args.seed, args.run_tag, args.smoke)
     target.parent.mkdir(exist_ok=True,parents=True)
     with target.open('w',encoding='utf-8') as f:
         json.dump(result,f,indent=2,default=float)

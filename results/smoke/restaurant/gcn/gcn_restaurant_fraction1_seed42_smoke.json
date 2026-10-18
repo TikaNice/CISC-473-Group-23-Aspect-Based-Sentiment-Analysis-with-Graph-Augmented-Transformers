@@ -1,0 +1,17 @@
+{
+  "experiment": "restaurant_fraction1_seed42_smoke",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "mps",
+  "seed": 42,
+  "train_size": 64,
+  "validation_size": 32,
+  "validation_metrics": {
+    "eval_loss": 0.8113534450531006,
+    "eval_accuracy": 0.8125,
+    "eval_macro_f1": 0.2988505747126437,
+    "eval_runtime": 0.286,
+    "eval_samples_per_second": 111.901,
+    "eval_steps_per_second": 13.988,
+    "epoch": 1.0
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "experiment": "restaurant_fraction1_seed43_ep4",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "mps",
+  "seed": 43,
+  "train_size": 3240,
+  "validation_size": 362,
+  "validation_metrics": {
+    "eval_loss": 0.5909658074378967,
+    "eval_accuracy": 0.787292817679558,
+    "eval_macro_f1": 0.674043549043549,
+    "eval_runtime": 3.1212,
+    "eval_samples_per_second": 115.981,
+    "eval_steps_per_second": 14.738,
+    "epoch": 4.0
+  },
+  "test_size": 1120,
+  "final_test_metrics": {
+    "test_loss": 0.4957362115383148,
+    "test_accuracy": 0.8276785714285714,
+    "test_macro_f1": 0.7342470551516532,
+    "test_runtime": 9.4599,
+    "test_samples_per_second": 118.394,
+    "test_steps_per_second": 14.799,
+    "epoch": 4.0
+  }
+}

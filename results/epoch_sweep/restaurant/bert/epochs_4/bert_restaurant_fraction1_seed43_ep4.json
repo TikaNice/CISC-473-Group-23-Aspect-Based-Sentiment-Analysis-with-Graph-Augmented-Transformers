@@ -1,0 +1,28 @@
+{
+  "experiment": "restaurant_fraction1_seed43_ep4",
+  "seed": 43,
+  "train_size": 3240,
+  "validation_size": 362,
+  "model": "bert-base-uncased",
+  "model_type": "BERT sentence-aspect pair, CLS",
+  "device": "mps",
+  "validation_metrics": {
+    "eval_loss": 0.843144953250885,
+    "eval_accuracy": 0.787292817679558,
+    "eval_macro_f1": 0.6883219954648526,
+    "eval_runtime": 2.9628,
+    "eval_samples_per_second": 122.182,
+    "eval_steps_per_second": 15.526,
+    "epoch": 4.0
+  },
+  "test_size": 1120,
+  "final_test_metrics": {
+    "test_loss": 0.6546383500099182,
+    "test_accuracy": 0.8410714285714286,
+    "test_macro_f1": 0.7599177838698797,
+    "test_runtime": 9.0404,
+    "test_samples_per_second": 123.888,
+    "test_steps_per_second": 15.486,
+    "epoch": 4.0
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "experiment": "restaurant_to_laptop_zero_shot",
+  "source_training_domain": "restaurant",
+  "target_test_domain": "laptop",
+  "model": "bert",
+  "seed": 43,
+  "checkpoint": "checkpoints/bert_restaurant_fraction1_seed43/checkpoint-1215",
+  "device": "mps",
+  "test_size": 638,
+  "test_accuracy": 0.731974921630094,
+  "test_macro_f1": 0.6657425967369147,
+  "note": "Zero-shot cross-domain evaluation only: no Laptop training or checkpoint selection."
+}
