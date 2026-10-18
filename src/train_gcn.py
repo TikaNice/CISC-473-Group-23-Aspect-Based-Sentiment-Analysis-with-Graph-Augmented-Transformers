@@ -1,4 +1,10 @@
-"""Train BERT + dependency GCN. Run: python -m src.train_gcn --domain restaurant --smoke"""
+"""Train BERT + dependency GCN. Run: python -m src.train_gcn --domain restaurant --smoke
+
+Training/validation records whose aspect cannot be located are skipped (and logged to
+results/audit/). Test records are NEVER skipped, so BERT and BERT+GCN are scored on the
+same examples: if the aspect cannot be aligned, the record is kept with an empty aspect
+mask (the classifier then relies on [CLS] alone) and counted in `n_aspect_unaligned`.
+"""
 import argparse
 import json
 import random
@@ -8,27 +14,25 @@ import numpy as np
 import spacy
 import torch
 from datasets import Dataset
-from sklearn.metrics import accuracy_score, f1_score
 from transformers import AutoTokenizer, Trainer, TrainingArguments
 
+from src.common import (LABEL_TO_ID, add_common_args, build_optimizer, compute_metrics,
+                        evaluate_test_sets, experiment_suffix, save_result)
 from src.model_gcn import BertDependencyGCN
 from src.train_bert import (
-    MODEL, LABEL_TO_ID, DATA_SPLIT_SEED, read_jsonl,
+    MODEL, MAX_LENGTH, PAD_MULTIPLE, DATA_SPLIT_SEED, read_jsonl,
     split_by_sentence, choose_train_fraction,
 )
 
-MAX_LENGTH = 128
-
 
 def find_aspect(text, span, row):
-    # Prefer verified XML offsets when available.
+    # Prefer verified XML offsets when available; fall back to the ordinal if they don't match.
     start, end = row.get("start"), row.get("end")
-    if isinstance(start, int) and isinstance(end, int):
+    if isinstance(start, int) and isinstance(end, int) and start >= 0:
         if text[start:end] == span:
             return start, end
-        raise ValueError("Invalid provided aspect offsets")
 
-    # SetFit ordinal: zero-based occurrence index.
+    # Zero-based occurrence index (SetFit rows, or XML rows with mismatched offsets).
     if "ordinal" not in row:
         raise ValueError("Missing aspect ordinal")
 
@@ -58,16 +62,20 @@ def find_aspect(text, span, row):
     return start, start + len(span)
 
 
-def encode_row(row, tokenizer, nlp):
+def encode_row(row, doc, tokenizer, strict=True):
+    """Encode one record. With strict=False, alignment failures give an empty aspect mask
+    instead of raising; the returned flag says whether the aspect was aligned."""
     text, span = row['text'], row['span']
-    start, end = find_aspect(text, span, row)
-    doc = nlp(text)
+    try:
+        start, end = find_aspect(text, span, row)
+    except ValueError:
+        if strict:
+            raise
+        start, end = -1, -1
     words = [t.text for t in doc]
     # Pre-tokenized sentence + aspect preserves sentence-level word_ids.
-    encoded = tokenizer(
-        words, [span], is_split_into_words=True, truncation=True,
-        max_length=MAX_LENGTH, padding='max_length',
-    )
+    encoded = tokenizer(words, [span], is_split_into_words=True, truncation=True,
+                        max_length=MAX_LENGTH)
     ids = encoded.word_ids(batch_index=0)
     type_ids = encoded.get('token_type_ids', [0] * len(ids))
     first_ids = [wid if wid is not None and type_ids[i] == 0 else -1
@@ -88,7 +96,8 @@ def encode_row(row, tokenizer, nlp):
     A *= scale[:, None] * scale[None, :]
     aspect_mask = [int(doc[i].idx < end and doc[i].idx + len(doc[i]) > start)
                    for i in kept]
-    if not any(aspect_mask):
+    aligned = any(aspect_mask)
+    if strict and not aligned:
         raise ValueError(f'Aspect truncated or unaligned: {span!r} in {text!r}')
     return {
         'input_ids': encoded['input_ids'],
@@ -97,38 +106,45 @@ def encode_row(row, tokenizer, nlp):
         'word_ids': mapped, 'adjacency': A.tolist(),
         'aspect_mask': aspect_mask,
         'labels': LABEL_TO_ID[row['label']],
-    }
+    }, aligned
+
+
+def round_up(n, multiple):
+    return -(-n // multiple) * multiple
 
 
 def collate(features):
-    b, max_words = len(features), max(len(x['aspect_mask']) for x in features)
+    b = len(features)
+    # Round padded sizes up to fixed buckets so MPS sees only a handful of tensor shapes.
+    max_words = round_up(max(len(x['aspect_mask']) for x in features), PAD_MULTIPLE // 2)
+    max_len = min(round_up(max(len(x['input_ids']) for x in features), PAD_MULTIPLE), MAX_LENGTH)
     A = torch.zeros(b, max_words, max_words, dtype=torch.float32)
     mask = torch.zeros(b, max_words, dtype=torch.float32)
+    input_ids = torch.zeros(b, max_len, dtype=torch.long)  # [PAD] id is 0 for bert-base-uncased
+    attention = torch.zeros(b, max_len, dtype=torch.long)
+    type_ids = torch.zeros(b, max_len, dtype=torch.long)
+    word_ids = torch.full((b, max_len), -1, dtype=torch.long)
     for i, x in enumerate(features):
-        n = len(x['aspect_mask'])
+        n, length = len(x['aspect_mask']), len(x['input_ids'])
         A[i, :n, :n] = torch.tensor(x['adjacency'], dtype=torch.float32)
         mask[i, :n] = torch.tensor(x['aspect_mask'], dtype=torch.float32)
+        input_ids[i, :length] = torch.tensor(x['input_ids'])
+        attention[i, :length] = torch.tensor(x['attention_mask'])
+        type_ids[i, :length] = torch.tensor(x['token_type_ids'])
+        word_ids[i, :length] = torch.tensor(x['word_ids'])
     return {
-        'input_ids': torch.tensor([x['input_ids'] for x in features], dtype=torch.long),
-        'attention_mask': torch.tensor([x['attention_mask'] for x in features], dtype=torch.long),
-        'token_type_ids': torch.tensor([x['token_type_ids'] for x in features], dtype=torch.long),
-        'word_ids': torch.tensor([x['word_ids'] for x in features], dtype=torch.long),
-        'adjacency': A, 'aspect_mask': mask,
+        'input_ids': input_ids, 'attention_mask': attention, 'token_type_ids': type_ids,
+        'word_ids': word_ids, 'adjacency': A, 'aspect_mask': mask,
         'labels': torch.tensor([x['labels'] for x in features], dtype=torch.long),
     }
 
 
 def main():
-    p = argparse.ArgumentParser()
-    p.add_argument('--domain', choices=['restaurant', 'laptop'], default='restaurant')
-    p.add_argument('--epochs', type=float, default=3)
-    p.add_argument('--batch-size', type=int, default=8)
-    p.add_argument('--seed', type=int, default=42)
-    p.add_argument('--train-fraction', type=float, default=1.)
-    p.add_argument('--smoke', action='store_true')
-    args = p.parse_args()
+    parser = add_common_args(argparse.ArgumentParser())
+    args = parser.parse_args()
     if not 0 < args.train_fraction <= 1:
-        p.error('--train-fraction must be in (0,1]')
+        parser.error('--train-fraction must be in (0,1]')
+    head_lr = args.head_lr if args.head_lr is not None else args.lr
     random.seed(args.seed); np.random.seed(args.seed); torch.manual_seed(args.seed)
     tr, val = split_by_sentence(read_jsonl(f'data/raw/{args.domain}/train.jsonl'))
     tr = choose_train_fraction(tr, args.train_fraction)
@@ -137,48 +153,46 @@ def main():
     print(f'Train: {len(tr)}, validation: {len(val)}')
     tokenizer = AutoTokenizer.from_pretrained(MODEL, use_fast=True)
     nlp = spacy.load('en_core_web_sm', disable=['ner'])
-    def ds(rows):
-        encoded = []
-        skipped = []
+    suffix = experiment_suffix(args)
 
-        for row in rows:
+    def ds(rows, split, strict=True):
+        """Encode rows. Returns (dataset, kept_rows, stats)."""
+        encoded, kept, skipped, unaligned = [], [], [], 0
+        docs = nlp.pipe([r['text'] for r in rows], batch_size=64)
+        for row, doc in zip(rows, docs):
             try:
-                encoded.append(encode_row(row, tokenizer, nlp))
+                features, aligned = encode_row(row, doc, tokenizer, strict=strict)
             except ValueError as exc:
-                skipped.append({
-                    "text": row["text"],
-                    "span": row["span"],
-                    "reason": str(exc),
-                })
-
-        print(
-            f"Encoded {len(encoded)}/{len(rows)} records; "
-            f"skipped {len(skipped)} ambiguous or unaligned records"
-        )
-
+                skipped.append({"text": row["text"], "span": row["span"], "reason": str(exc)})
+                continue
+            encoded.append(features)
+            kept.append(row)
+            unaligned += not aligned
+        print(f"[{split}] encoded {len(encoded)}/{len(rows)} records; "
+              f"skipped {len(skipped)}; kept with unaligned aspect {unaligned}")
         if skipped:
-            audit_dir = Path("results/audit")
-            audit_dir.mkdir(parents=True, exist_ok=True)
-            audit_file = audit_dir / f"gcn_{args.domain}_skipped.jsonl"
-            with audit_file.open("a", encoding="utf-8") as f:
+            audit_file = Path(args.results_dir) / "audit" / f"gcn_{suffix}_{split}_skipped.jsonl"
+            audit_file.parent.mkdir(parents=True, exist_ok=True)
+            with audit_file.open("w", encoding="utf-8") as f:
                 for record in skipped:
-                    f.write(json.dumps(record, ensure_ascii=False) + "\\n")
+                    f.write(json.dumps(record, ensure_ascii=False) + "\n")
             print("Skipped-record audit:", audit_file)
-
         if not encoded:
             raise ValueError("No valid records remain after encoding")
+        stats = {'n_input': len(rows), 'n_skipped': len(skipped), 'n_aspect_unaligned': unaligned}
+        return Dataset.from_list(encoded), kept, stats
 
-        return Dataset.from_list(encoded)
-    train_ds, val_ds = ds(tr), ds(val)
+    train_ds, _, train_stats = ds(tr, 'train')
+    val_ds, _, val_stats = ds(val, 'validation')
     model = BertDependencyGCN(model_name=MODEL)
-    suffix = f'{args.domain}_fraction{args.train_fraction:g}_seed{args.seed}' + ('_smoke' if args.smoke else '')
+    output_dir = f'checkpoints/gcn_{suffix}'
     opts = TrainingArguments(
-        output_dir=f'checkpoints/gcn_{suffix}',
+        output_dir=output_dir,
         num_train_epochs=1 if args.smoke else args.epochs,
         per_device_train_batch_size=args.batch_size,
         per_device_eval_batch_size=args.batch_size,
-        learning_rate=2e-5, weight_decay=0.01,
-        eval_strategy='epoch', save_strategy='epoch',
+        learning_rate=args.lr, weight_decay=0.01,
+        eval_strategy='epoch', save_strategy='epoch', save_only_model=True,
         load_best_model_at_end=True, metric_for_best_model='macro_f1',
         greater_is_better=True, save_total_limit=1,
         seed=args.seed, data_seed=DATA_SPLIT_SEED,
@@ -186,35 +200,34 @@ def main():
         dataloader_pin_memory=False, fp16=False, bf16=False,
         remove_unused_columns=False, logging_steps=10,
     )
-    def metrics(pred):
-        guesses = np.asarray(pred.predictions).argmax(-1)
-        truth = np.asarray(pred.label_ids)
-        return {'accuracy': accuracy_score(truth, guesses),
-                'macro_f1': f1_score(truth, guesses, labels=[0,1,2], average='macro', zero_division=0)}
     trainer = Trainer(model=model, args=opts, train_dataset=train_ds,
                       eval_dataset=val_ds, data_collator=collate,
-                      compute_metrics=metrics, processing_class=tokenizer)
+                      compute_metrics=compute_metrics, processing_class=tokenizer,
+                      optimizers=(build_optimizer(model, args.lr, head_lr), None))
     print('Trainer device:', trainer.args.device)
     trainer.train()
     result = {
         'experiment': suffix, 'model_type': 'BERT pair + 2-layer dependency GCN + aspect pooling',
-        'device': str(trainer.args.device), 'seed': args.seed,
-        'train_size': len(tr), 'validation_size': len(val),
+        'device': str(trainer.args.device), 'seed': args.seed, 'domain': args.domain,
+        'train_fraction': args.train_fraction,
+        'lr': args.lr, 'head_lr': head_lr, 'epochs': args.epochs, 'batch_size': args.batch_size,
+        'train_size': len(train_ds), 'validation_size': len(val_ds),
+        'train_encoding': train_stats, 'validation_encoding': val_stats,
         'validation_metrics': trainer.evaluate(val_ds),
     }
+
+    def encode_test(rows):
+        dataset, kept, stats = ds(rows, 'test', strict=False)
+        if len(kept) != len(rows):
+            raise RuntimeError(f'{stats["n_skipped"]} test records could not be encoded; '
+                               'test sets must be scored in full')
+        return dataset, stats
+
     if not args.smoke:
-        gold = Path(f'data/processed/{args.domain}/test_gold.jsonl')
-        if gold.is_file():
-            test_rows = read_jsonl(gold)
-            result['test_size'] = len(test_rows)
-            result['final_test_metrics'] = trainer.evaluate(ds(test_rows), metric_key_prefix='test')
-        else:
-            print(f'WARNING: missing gold data {gold}; skipping test')
-    out = Path(f'results/gcn_{suffix}.json')
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(result, indent=2, default=float), encoding='utf-8')
-    print('Saved:', out)
-    print(json.dumps(result, indent=2, default=float))
+        evaluate_test_sets(trainer, args, 'gcn', suffix, encode_test, read_jsonl, result)
+    save_result(result, trainer, 'gcn', suffix, output_dir, args)
+    print(json.dumps({k: v for k, v in result.items() if k != 'log_history'}, indent=2, default=float))
+
 
 if __name__ == '__main__':
     main()
