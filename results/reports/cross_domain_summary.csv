@@ -1,3 +1,3 @@
-category,domain,model,fraction,epochs,n_seeds,test_accuracy_mean,test_accuracy_std,test_macro_f1_mean,test_macro_f1_std,validation_macro_f1_mean,validation_macro_f1_std
-cross_domain,restaurant_to_laptop,bert,1,3,3,0.7262277951933125,0.00863255571674937,0.6594503318852745,0.007872351732991001,,
-cross_domain,restaurant_to_laptop,gcn,1,3,3,0.7575757575757576,0.00944782723094311,0.7025344288133097,0.012342314417098701,,
+category,domain,model,fraction,epochs,revision,n_seeds,seeds,statistics_status,test_accuracy_mean,test_accuracy_std,test_macro_f1_mean,test_macro_f1_std,validation_macro_f1_mean,validation_macro_f1_std
+cross_domain,restaurant_to_laptop,bert,1,3,bert_v1,3,"42,43,44",three_seeds,0.7262277951933125,0.00863255571674937,0.6594503318852745,0.007872351732991001,,
+cross_domain,restaurant_to_laptop,gcn,1,3,aspectfix_v1,1,42,single_seed,0.7476489028213166,,0.6893059453179392,,,

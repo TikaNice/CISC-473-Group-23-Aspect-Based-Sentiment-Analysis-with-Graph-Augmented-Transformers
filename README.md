@@ -1,6 +1,6 @@
 # CISC 473 Group 23 — ABSA
 
-Current correction: historical GCN results used a case-insensitive aspect lookup. Corrected runs use the `aspectfix` tag and are reported separately. For the current single-seed Midterm run, use `bash scripts/run_midterm_seed42.sh`; read `results/reports/corrected_seed42.md` for progress and completed scores. Existing three-seed GCN tables are historical and must not be presented as corrected results. BERT-only records are reused.
+Current results: only unaffected BERT records and corrected GCN (`aspectfix`) records are retained. Invalid legacy GCN JSONs and derived statistics were removed. BERT has seeds 42/43/44; corrected GCN has seed 42 for both domains, full/10%/25%/50% budgets and cross-domain evaluation. Corrected seeds 43/44 and GCN epoch-budget extensions remain pending. Read `results/reports/corrected_seed42.md` for the matched one-seed comparison and `results/reports/experiment_status.csv` for full availability. Run `bash scripts/run_midterm_seed42.sh` to reuse the completed one-seed experiments.
 
 A BERT sentence–aspect classifier and a two-layer dependency GCN extension, evaluated on SemEval-2014 Restaurant and Laptop with three random seeds, reduced training budgets and Restaurant-to-Laptop transfer.
 

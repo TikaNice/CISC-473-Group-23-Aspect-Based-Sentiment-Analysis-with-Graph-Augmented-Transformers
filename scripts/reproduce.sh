@@ -17,7 +17,7 @@ python -m scripts.summarize_results
 python -m scripts.summarize_sweeps
 python -m scripts.extract_epoch_validation_curve
 
-# Legacy summary tables above are historical. Keep corrected scores separate.
+# Per-seed comparisons supplement the valid-record aggregate tables above.
 for seed in ${SEEDS:-42 43 44}; do
   python -m scripts.summarize_corrected --seed "$seed"
 done

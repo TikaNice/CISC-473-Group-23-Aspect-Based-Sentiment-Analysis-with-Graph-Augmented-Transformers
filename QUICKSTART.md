@@ -10,7 +10,7 @@ bash scripts/run_midterm_seed42.sh
 
 This runs corrected BERT + GCN on Restaurant and Laptop, evaluates Restaurant → Laptop, then runs 10%/25%/50% training budgets. Matching BERT-only seed-42 records are reused. It skips already completed `aspectfix` results and writes progress to `results/reports/corrected_seed42.md` and `.csv`. Epoch sweeps are deferred. Corrected checkpoints save model weights without optimizer state.
 
-The course's Week-6 plan includes data-efficiency and cross-domain experiments. This one-seed run is preliminary; the course's three-run statistics remain a follow-up task. The existing historical GCN three-seed averages are not a substitute for corrected runs. The repair retains the project training protocol to match existing BERT records; it does not switch to the 2019 author protocol.
+The course's Week-6 plan includes data-efficiency and cross-domain experiments. This one-seed run is preliminary; the course's three-run statistics remain a follow-up task. Invalid legacy GCN records and their averages have been removed. Corrected GCN seeds 43/44 remain pending. The repair retains the project training protocol to match existing BERT records; it does not switch to the 2019 author protocol.
 
 Rebuild only the corrected comparison:
 
@@ -110,7 +110,7 @@ Evaluate Restaurant-trained baseline checkpoints on the Laptop test set:
 python -m scripts.eval_cross_domain --model all --seeds 42 43 44
 ```
 
-This performs inference only. It requires the six Restaurant baseline checkpoints. Add `--overwrite` to recompute existing cross-domain results.
+This performs inference only. BERT needs its Restaurant baseline checkpoints; GCN needs the corresponding corrected aspectfix checkpoints. Corrected GCN seeds 43/44 must be trained before evaluating them. For current GCN results use `--model gcn --seeds 42`. Add `--overwrite` to recompute existing results.
 
 ### Complete experiment pipeline
 
@@ -124,7 +124,7 @@ This runs full-data, low-resource and epoch experiments, evaluates cross-domain 
 
 ## Summaries
 
-These commands read historical saved results without training (including legacy GCN results); use summarize_corrected above for the repaired comparison:
+These commands read all available valid BERT and corrected GCN results without training. Pending runs are listed explicitly; single-seed groups have no standard deviation:
 
 ```bash
 python -m scripts.summarize_results
@@ -133,8 +133,9 @@ python -m scripts.summarize_sweeps
 
 | Output in `results/reports/` | Contents |
 |---|---|
-| `all_metrics.csv` | One row per run, including smoke tests |
-| `summary_by_group.csv` | Mean and sample standard deviation for 30 formal three-seed groups |
+| `all_metrics.csv` | One row per valid run, including optional smoke tests |
+| `experiment_status.csv` | Completed and pending runs in the planned matrix |
+| `summary_by_group.csv` | Available groups with seed counts; SD only when at least two valid runs exist |
 | `baseline_summary.csv` | Full-data comparison |
 | `cross_domain_summary.csv` | Restaurant → Laptop comparison |
 | `low_resource_summary.csv` | Data-budget comparison, including the baseline |
@@ -147,11 +148,11 @@ Extract validation history from retained epoch-4 checkpoints or the archived tra
 python -m scripts.extract_epoch_validation_curve
 ```
 
-The resulting `epoch_validation_learning_curve.csv` can be incomplete because only selected checkpoints were retained. Optimizer state and nonessential model weights have been removed; archived Trainer metadata still supports this command. The historical `epoch4_validation_from_logs.csv` contains all 48 validation points recovered from the original logs.
+The resulting `epoch_validation_learning_curve.csv` can be incomplete because only selected checkpoints were retained. Optimizer state and nonessential model weights have been removed; archived Trainer metadata still supports this command. `epoch4_validation_from_logs.csv` retains the 24 valid BERT validation points. Invalid legacy GCN curve rows were removed; corrected GCN epoch-4 runs have not been trained.
 
 ## Output layout
 
-New training results and checkpoints use the same experiment categories. Following storage cleanup, only six Restaurant baseline model checkpoints remain locally:
+New training results and checkpoints use the same experiment categories. The retained checkpoints include BERT baselines and newly corrected GCN models; old GCN weights are not used for current results:
 
 ```text
 results/                              checkpoints/

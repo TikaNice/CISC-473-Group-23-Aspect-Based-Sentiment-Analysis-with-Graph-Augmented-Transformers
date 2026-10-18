@@ -70,8 +70,10 @@ def main():
     parser.add_argument('--seeds', type=int, nargs='+', default=[42, 43, 44])
     parser.add_argument('--batch-size', type=int, default=8)
     parser.add_argument('--overwrite', action='store_true')
-    parser.add_argument('--gcn-run-tag', default='aspectfix', help='Corrected GCN training tag; empty selects historical models')
+    parser.add_argument('--gcn-run-tag', default='aspectfix', help='Corrected GCN training tag; aspectfix prefix required')
     args = parser.parse_args()
+    if args.model in ('gcn', 'all') and not args.gcn_run_tag.startswith('aspectfix'):
+        parser.error('GCN evaluation requires a corrected aspectfix run; legacy GCN results were retired')
 
     def target_path(model, seed):
         tag = '_' + args.gcn_run_tag if model == 'gcn' and args.gcn_run_tag else ''

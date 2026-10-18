@@ -23,7 +23,7 @@ def main():
     target = Path(f'results/reports/corrected_seed{args.seed}.csv')
     target.parent.mkdir(parents=True, exist_ok=True)
     with target.open('w', newline='', encoding='utf-8') as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0]), lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
     lines = [f'# Corrected BERT + GCN comparison — seed {args.seed}', '',

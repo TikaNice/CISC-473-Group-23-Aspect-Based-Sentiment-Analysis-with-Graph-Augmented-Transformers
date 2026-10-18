@@ -13,7 +13,8 @@ rows = []
 for domain in ('restaurant', 'laptop'):
     for model in ('bert', 'gcn'):
         for seed in (42, 43, 44):
-            base = checkpoint_dir(model, domain, 1, seed, 'ep4')
+            tag = 'aspectfix_ep4' if model == 'gcn' else 'ep4'
+            base = checkpoint_dir(model, domain, 1, seed, tag)
             states = sorted(base.glob('checkpoint-*/trainer_state.json'),
                             key=lambda p: int(p.parent.name.split('-')[-1]))
             if states:
@@ -48,11 +49,10 @@ if rows:
     target = Path('results/reports/epoch_validation_learning_curve.csv')
     target.parent.mkdir(parents=True, exist_ok=True)
     with target.open('w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=list(rows[0]))
+        writer = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
     print('Saved:', target)
-    if len(rows) < 48:
-        print(f'WARNING: only {len(rows)}/48 validation points retained in checkpoints. Use epoch4_validation_from_logs.csv for the audited historical full curve.')
+    print('Valid history only: legacy GCN states are excluded. Corrected GCN epoch-4 history remains pending until those runs are trained.')
 else:
     print('No epoch-4 Trainer state found yet. Run the epoch sweep first.')
