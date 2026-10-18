@@ -26,19 +26,18 @@ def main():
         writer = csv.DictWriter(handle, fieldnames=list(rows[0]), lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
-    lines = [f'# Corrected BERT + GCN comparison — seed {args.seed}', '',
-             'Single-seed preliminary results. No multi-seed mean, SD, or significance claim.',
-             'BERT reuses the existing matching project configuration. GCN uses case-sensitive aspect alignment.',
-             'Training settings remain the project protocol (3 epochs, batch 8, LR 2e-5, length 128), not the 2019 author protocol.',
-             'Historical GCN scores are excluded. Epoch-budget experiments are deferred.', '',
+    lines = [f'# Per-seed model comparison - seed {args.seed}', '',
+             'Test results for BERT and the corrected dependency GCN under the project protocol.',
+             'Settings: 3 epochs, batch 8, LR 2e-5, length 128; fixed split and budget seed 2026.',
+             'Each row represents one run. Multi-seed statistics are stored in summary_by_group.csv.', '',
              '| Domain | Fraction | Model | Status | Test accuracy | Test Macro-F1 |',
              '|---|---|---|---|---:|---:|']
     for row in rows:
         acc = f"{row['test_accuracy']:.4f}" if row['status'] == 'complete' else '—'
         f1 = f"{row['test_macro_f1']:.4f}" if row['status'] == 'complete' else '—'
         lines.append(f"| {row['domain']} | {row['fraction']} | {row['model']} | {row['status']} | {acc} | {f1} |")
-    lines += ['', 'Matching data splits and sentence-budget sampling use seed 2026. Existing train/test overlaps remain disclosed in IMPLEMENTATION.md.',
-              'Course reproducibility guidance requests at least three runs; this one-seed correction is an interim checkpoint for the group, with remaining seeds still pending.', '']
+    lines += ['', 'GCN revision: case_sensitive_ordinal_v1. Metrics are fractions on [0, 1].',
+              'Data overlaps and protocol limitations are documented in IMPLEMENTATION.md.', '']
     target.with_suffix('.md').write_text('\n'.join(lines), encoding='utf-8')
     done = sum(row['status'] == 'complete' for row in rows)
     print(f'Updated {target}: {done}/{len(rows)} comparison rows complete.')

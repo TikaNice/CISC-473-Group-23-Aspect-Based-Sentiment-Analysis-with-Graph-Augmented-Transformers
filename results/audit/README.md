@@ -1,3 +1,13 @@
-# Diagnostics
+# Engineering diagnostics
 
-This folder is reserved for future encoding diagnostics. The obsolete malformed skipped-record audit was removed together with invalid legacy GCN experiment records. The aspect-alignment defect and its official-XML comparisons remain documented in results/reports/aspect-alignment-audit.json. Diagnostics are not benchmark scores.
+This directory contains historical implementation and data checks. Benchmark metrics and experiment status are stored in ../reports/.
+
+| File | Scope |
+|---|---|
+| aspect-alignment-audit.json | Official-XML verification of case-sensitive aspect lookup |
+| data-split-audit.json | Split sizes, budget sizes and original-data overlaps |
+| code-runtime-audit.json | Historical encoding and model runtime checks |
+| reproducibility_hashes.csv | Historical audit-time file fingerprints |
+| training_log_audit.csv | Retained BERT log inventory |
+
+Runtime checks alone do not validate aspect alignment. Historical fingerprints are not current integrity hashes. Old GCN weights and archived Trainer states are excluded from active score and curve generation.

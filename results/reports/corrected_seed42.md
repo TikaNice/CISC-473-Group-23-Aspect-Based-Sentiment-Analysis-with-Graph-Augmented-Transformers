@@ -1,9 +1,8 @@
-# Corrected BERT + GCN comparison — seed 42
+# Per-seed model comparison - seed 42
 
-Single-seed preliminary results. No multi-seed mean, SD, or significance claim.
-BERT reuses the existing matching project configuration. GCN uses case-sensitive aspect alignment.
-Training settings remain the project protocol (3 epochs, batch 8, LR 2e-5, length 128), not the 2019 author protocol.
-Historical GCN scores are excluded. Epoch-budget experiments are deferred.
+Test results for BERT and the corrected dependency GCN under the project protocol.
+Settings: 3 epochs, batch 8, LR 2e-5, length 128; fixed split and budget seed 2026.
+Each row represents one run. Multi-seed statistics are stored in summary_by_group.csv.
 
 | Domain | Fraction | Model | Status | Test accuracy | Test Macro-F1 |
 |---|---|---|---|---:|---:|
@@ -26,5 +25,5 @@ Historical GCN scores are excluded. Epoch-budget experiments are deferred.
 | restaurant_to_laptop | 1 | bert | complete | 0.7304 | 0.6620 |
 | restaurant_to_laptop | 1 | gcn | complete | 0.7476 | 0.6893 |
 
-Matching data splits and sentence-budget sampling use seed 2026. Existing train/test overlaps remain disclosed in IMPLEMENTATION.md.
-Course reproducibility guidance requests at least three runs; this one-seed correction is an interim checkpoint for the group, with remaining seeds still pending.
+GCN revision: case_sensitive_ordinal_v1. Metrics are fractions on [0, 1].
+Data overlaps and protocol limitations are documented in IMPLEMENTATION.md.

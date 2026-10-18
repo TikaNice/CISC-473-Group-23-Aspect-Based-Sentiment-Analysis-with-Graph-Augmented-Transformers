@@ -95,6 +95,34 @@ def group_records(records):
     return summaries
 
 
+def write_index(records, status, summaries):
+    completed = sum(r['status'] == 'complete' for r in status)
+    lines = ['# Experiment results', '',
+             'The index includes valid BERT experiments and GCN experiments with case_sensitive_ordinal_v1 aspect alignment.', '',
+             f'Available: {completed}/{len(status)} planned formal results; {len(records)} saved records including optional smoke tests.', '',
+             '## Availability by model and experiment', '',
+             '| Model | Category | Complete | Pending |', '|---|---|---:|---:|']
+    for model in ('bert', 'gcn'):
+        for category in ('baseline', 'low_resource', 'cross_domain', 'epoch_sweep'):
+            selected = [r for r in status if r['model'] == model and r['category'] == category]
+            done = sum(r['status'] == 'complete' for r in selected)
+            lines.append(f'| {model} | {category} | {done} | {len(selected)-done} |')
+    lines += ['', 'The full-data, reduced-data and cross-domain matrix contains 54 planned results. GCN epoch-budget extensions are listed separately as pending.', '',
+              '## Reports', '',
+              '- [Every valid run](reports/all_metrics.csv)',
+              '- [Completed/pending run matrix](reports/experiment_status.csv)',
+              '- [Grouped means and sample SD](reports/summary_by_group.csv)',
+              '- [Full-data comparison](reports/baseline_summary.csv)',
+              '- [Data-budget comparison](reports/low_resource_summary.csv)',
+              '- [Cross-domain comparison](reports/cross_domain_summary.csv)', '',
+              'Grouped reports include exact seed counts, arithmetic means and sample standard deviations. A single-seed group has no standard deviation.', '',
+              '## Saved experiment records', '']
+    for row in sorted(records, key=lambda r:r['file']):
+        relative = Path(row['file']).relative_to('results')
+        lines.append(f"- [{relative}]({relative.as_posix()})")
+    Path('results/INDEX.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
+
+
 def main():
     records, status = collect_records()
     summaries = group_records(records)
@@ -109,6 +137,7 @@ def main():
     write_csv(output / 'summary_by_group.csv', summaries)
     write_csv(output / 'baseline_summary.csv', [r for r in summaries if r['category'] == 'baseline'])
     write_csv(output / 'cross_domain_summary.csv', [r for r in summaries if r['category'] == 'cross_domain'])
+    write_index(records, status, summaries)
     completed = sum(r['status'] == 'complete' for r in status)
     print(f'Valid formal records: {completed}; pending: {len(status)-completed}; total saved records including optional smoke: {len(records)}.')
     print('Only corrected GCN records are included. One-seed groups have blank SD; see experiment_status.csv for pending runs.')

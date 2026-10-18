@@ -95,9 +95,9 @@ DOMAINS=laptop MODELS=bert SEEDS=42 EPOCHS="1 2" bash scripts/run_epoch_sweep.sh
 
 Each run still selects its best checkpoint by validation Macro-F1, so the selected checkpoint may come from an earlier epoch.
 
-### Continue GCN experiments
+### GCN experiment runner
 
-If the matching BERT results already exist, this runner completes GCN full-data, cross-domain and low-resource experiments and refreshes the reports after each result:
+This runner uses existing matching BERT records and runs GCN full-data, cross-domain and low-resource experiments, refreshing reports after each result:
 
 ```bash
 SEEDS="43 44" bash scripts/run_midterm_seeds.sh

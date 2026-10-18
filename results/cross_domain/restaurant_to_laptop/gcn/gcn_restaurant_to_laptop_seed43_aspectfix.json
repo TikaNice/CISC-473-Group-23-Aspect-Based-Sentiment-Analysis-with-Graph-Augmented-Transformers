@@ -1,0 +1,15 @@
+{
+  "experiment": "restaurant_to_laptop_zero_shot",
+  "source_training_domain": "restaurant",
+  "target_test_domain": "laptop",
+  "model": "gcn",
+  "run_tag": "aspectfix",
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "seed": 43,
+  "checkpoint": "checkpoints/custom/restaurant/gcn/gcn_restaurant_fraction1_seed43_aspectfix/checkpoint-810",
+  "device": "mps",
+  "test_size": 638,
+  "test_accuracy": 0.7601880877742947,
+  "test_macro_f1": 0.7070644966668403,
+  "note": "Zero-shot cross-domain evaluation only: no Laptop training or checkpoint selection."
+}

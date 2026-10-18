@@ -1344,6 +1344,86 @@
   }
 }
 
+=== results/custom/restaurant/gcn/gcn_restaurant_fraction1_seed43_aspectfix.json ===
+{
+  "experiment": "restaurant_fraction1_seed43_aspectfix",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "mps",
+  "seed": 43,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 3240,
+  "validation_size": 362,
+  "validation_metrics": {
+    "eval_loss": 0.6110419034957886,
+    "eval_accuracy": 0.7790055248618785,
+    "eval_macro_f1": 0.656973077092421,
+    "eval_runtime": 2.921,
+    "eval_samples_per_second": 123.93,
+    "eval_steps_per_second": 15.748,
+    "epoch": 3.0
+  },
+  "test_size": 1120,
+  "final_test_metrics": {
+    "test_loss": 0.4997859299182892,
+    "test_accuracy": 0.8348214285714286,
+    "test_macro_f1": 0.7382385864383125,
+    "test_runtime": 8.8459,
+    "test_samples_per_second": 126.612,
+    "test_steps_per_second": 15.826,
+    "epoch": 3.0
+  }
+}
+
+=== results/custom/restaurant/gcn/gcn_restaurant_fraction1_seed44_aspectfix.json ===
+{
+  "experiment": "restaurant_fraction1_seed44_aspectfix",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "mps",
+  "seed": 44,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 3240,
+  "validation_size": 362,
+  "validation_metrics": {
+    "eval_loss": 0.7019134163856506,
+    "eval_accuracy": 0.7900552486187845,
+    "eval_macro_f1": 0.6840630269201697,
+    "eval_runtime": 2.8838,
+    "eval_samples_per_second": 125.53,
+    "eval_steps_per_second": 15.951,
+    "epoch": 3.0
+  },
+  "test_size": 1120,
+  "final_test_metrics": {
+    "test_loss": 0.5423294901847839,
+    "test_accuracy": 0.8357142857142857,
+    "test_macro_f1": 0.7427775194608436,
+    "test_runtime": 8.8672,
+    "test_samples_per_second": 126.309,
+    "test_steps_per_second": 15.789,
+    "epoch": 3.0
+  }
+}
+
 === results/custom/restaurant/gcn/gcn_restaurant_fraction0.1_seed42_aspectfix.json ===
 {
   "experiment": "restaurant_fraction0.1_seed42_aspectfix",
@@ -1380,6 +1460,86 @@
     "test_runtime": 8.9825,
     "test_samples_per_second": 124.687,
     "test_steps_per_second": 15.586,
+    "epoch": 3.0
+  }
+}
+
+=== results/custom/restaurant/gcn/gcn_restaurant_fraction0.1_seed43_aspectfix.json ===
+{
+  "experiment": "restaurant_fraction0.1_seed43_aspectfix",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "mps",
+  "seed": 43,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 335,
+  "validation_size": 362,
+  "validation_metrics": {
+    "eval_loss": 0.7683543562889099,
+    "eval_accuracy": 0.6988950276243094,
+    "eval_macro_f1": 0.42216950046131546,
+    "eval_runtime": 3.0923,
+    "eval_samples_per_second": 117.066,
+    "eval_steps_per_second": 14.876,
+    "epoch": 3.0
+  },
+  "test_size": 1120,
+  "final_test_metrics": {
+    "test_loss": 0.6728366613388062,
+    "test_accuracy": 0.73125,
+    "test_macro_f1": 0.5109485913152276,
+    "test_runtime": 9.197,
+    "test_samples_per_second": 121.778,
+    "test_steps_per_second": 15.222,
+    "epoch": 3.0
+  }
+}
+
+=== results/custom/restaurant/gcn/gcn_restaurant_fraction0.1_seed44_aspectfix.json ===
+{
+  "experiment": "restaurant_fraction0.1_seed44_aspectfix",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "mps",
+  "seed": 44,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 335,
+  "validation_size": 362,
+  "validation_metrics": {
+    "eval_loss": 0.7460267543792725,
+    "eval_accuracy": 0.6850828729281768,
+    "eval_macro_f1": 0.36530033043443,
+    "eval_runtime": 2.8519,
+    "eval_samples_per_second": 126.933,
+    "eval_steps_per_second": 16.13,
+    "epoch": 3.0
+  },
+  "test_size": 1120,
+  "final_test_metrics": {
+    "test_loss": 0.6790376305580139,
+    "test_accuracy": 0.7026785714285714,
+    "test_macro_f1": 0.4424888166664382,
+    "test_runtime": 8.7164,
+    "test_samples_per_second": 128.493,
+    "test_steps_per_second": 16.062,
     "epoch": 3.0
   }
 }
@@ -1424,6 +1584,86 @@
   }
 }
 
+=== results/custom/restaurant/gcn/gcn_restaurant_fraction0.25_seed43_aspectfix.json ===
+{
+  "experiment": "restaurant_fraction0.25_seed43_aspectfix",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "mps",
+  "seed": 43,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 794,
+  "validation_size": 362,
+  "validation_metrics": {
+    "eval_loss": 0.7186417579650879,
+    "eval_accuracy": 0.7458563535911602,
+    "eval_macro_f1": 0.579268267126507,
+    "eval_runtime": 2.8691,
+    "eval_samples_per_second": 126.174,
+    "eval_steps_per_second": 16.033,
+    "epoch": 3.0
+  },
+  "test_size": 1120,
+  "final_test_metrics": {
+    "test_loss": 0.5635108947753906,
+    "test_accuracy": 0.7982142857142858,
+    "test_macro_f1": 0.6599464420584311,
+    "test_runtime": 8.7566,
+    "test_samples_per_second": 127.903,
+    "test_steps_per_second": 15.988,
+    "epoch": 3.0
+  }
+}
+
+=== results/custom/restaurant/gcn/gcn_restaurant_fraction0.25_seed44_aspectfix.json ===
+{
+  "experiment": "restaurant_fraction0.25_seed44_aspectfix",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "mps",
+  "seed": 44,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 794,
+  "validation_size": 362,
+  "validation_metrics": {
+    "eval_loss": 0.6672084927558899,
+    "eval_accuracy": 0.7624309392265194,
+    "eval_macro_f1": 0.6046890881233028,
+    "eval_runtime": 2.8726,
+    "eval_samples_per_second": 126.017,
+    "eval_steps_per_second": 16.013,
+    "epoch": 3.0
+  },
+  "test_size": 1120,
+  "final_test_metrics": {
+    "test_loss": 0.5442102551460266,
+    "test_accuracy": 0.7982142857142858,
+    "test_macro_f1": 0.6623909628031378,
+    "test_runtime": 8.8279,
+    "test_samples_per_second": 126.871,
+    "test_steps_per_second": 15.859,
+    "epoch": 3.0
+  }
+}
+
 === results/custom/restaurant/gcn/gcn_restaurant_fraction0.5_seed42_aspectfix.json ===
 {
   "experiment": "restaurant_fraction0.5_seed42_aspectfix",
@@ -1464,6 +1704,86 @@
   }
 }
 
+=== results/custom/restaurant/gcn/gcn_restaurant_fraction0.5_seed43_aspectfix.json ===
+{
+  "experiment": "restaurant_fraction0.5_seed43_aspectfix",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "mps",
+  "seed": 43,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 1604,
+  "validation_size": 362,
+  "validation_metrics": {
+    "eval_loss": 0.646719217300415,
+    "eval_accuracy": 0.7651933701657458,
+    "eval_macro_f1": 0.623668477116753,
+    "eval_runtime": 3.0467,
+    "eval_samples_per_second": 118.818,
+    "eval_steps_per_second": 15.098,
+    "epoch": 3.0
+  },
+  "test_size": 1120,
+  "final_test_metrics": {
+    "test_loss": 0.5721931457519531,
+    "test_accuracy": 0.8285714285714286,
+    "test_macro_f1": 0.7218209027684684,
+    "test_runtime": 9.3977,
+    "test_samples_per_second": 119.178,
+    "test_steps_per_second": 14.897,
+    "epoch": 3.0
+  }
+}
+
+=== results/custom/restaurant/gcn/gcn_restaurant_fraction0.5_seed44_aspectfix.json ===
+{
+  "experiment": "restaurant_fraction0.5_seed44_aspectfix",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "mps",
+  "seed": 44,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 1604,
+  "validation_size": 362,
+  "validation_metrics": {
+    "eval_loss": 0.6673142910003662,
+    "eval_accuracy": 0.7486187845303868,
+    "eval_macro_f1": 0.600306224184589,
+    "eval_runtime": 2.892,
+    "eval_samples_per_second": 125.171,
+    "eval_steps_per_second": 15.906,
+    "epoch": 3.0
+  },
+  "test_size": 1120,
+  "final_test_metrics": {
+    "test_loss": 0.5476034879684448,
+    "test_accuracy": 0.8178571428571428,
+    "test_macro_f1": 0.7107777033127168,
+    "test_runtime": 8.8895,
+    "test_samples_per_second": 125.991,
+    "test_steps_per_second": 15.749,
+    "epoch": 3.0
+  }
+}
+
 === results/cross_domain/restaurant_to_laptop/gcn/gcn_restaurant_to_laptop_seed42_aspectfix.json ===
 {
   "experiment": "restaurant_to_laptop_zero_shot",
@@ -1478,6 +1798,40 @@
   "test_size": 638,
   "test_accuracy": 0.7476489028213166,
   "test_macro_f1": 0.6893059453179392,
+  "note": "Zero-shot cross-domain evaluation only: no Laptop training or checkpoint selection."
+}
+
+=== results/cross_domain/restaurant_to_laptop/gcn/gcn_restaurant_to_laptop_seed43_aspectfix.json ===
+{
+  "experiment": "restaurant_to_laptop_zero_shot",
+  "source_training_domain": "restaurant",
+  "target_test_domain": "laptop",
+  "model": "gcn",
+  "run_tag": "aspectfix",
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "seed": 43,
+  "checkpoint": "checkpoints/custom/restaurant/gcn/gcn_restaurant_fraction1_seed43_aspectfix/checkpoint-810",
+  "device": "mps",
+  "test_size": 638,
+  "test_accuracy": 0.7601880877742947,
+  "test_macro_f1": 0.7070644966668403,
+  "note": "Zero-shot cross-domain evaluation only: no Laptop training or checkpoint selection."
+}
+
+=== results/cross_domain/restaurant_to_laptop/gcn/gcn_restaurant_to_laptop_seed44_aspectfix.json ===
+{
+  "experiment": "restaurant_to_laptop_zero_shot",
+  "source_training_domain": "restaurant",
+  "target_test_domain": "laptop",
+  "model": "gcn",
+  "run_tag": "aspectfix",
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "seed": 44,
+  "checkpoint": "checkpoints/custom/restaurant/gcn/gcn_restaurant_fraction1_seed44_aspectfix/checkpoint-1215",
+  "device": "mps",
+  "test_size": 638,
+  "test_accuracy": 0.7570532915360502,
+  "test_macro_f1": 0.7031802977404206,
   "note": "Zero-shot cross-domain evaluation only: no Laptop training or checkpoint selection."
 }
 
@@ -1517,6 +1871,86 @@
     "test_runtime": 5.1444,
     "test_samples_per_second": 124.018,
     "test_steps_per_second": 15.551,
+    "epoch": 3.0
+  }
+}
+
+=== results/custom/laptop/gcn/gcn_laptop_fraction1_seed43_aspectfix.json ===
+{
+  "experiment": "laptop_fraction1_seed43_aspectfix",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "mps",
+  "seed": 43,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 2092,
+  "validation_size": 221,
+  "validation_metrics": {
+    "eval_loss": 0.8632012009620667,
+    "eval_accuracy": 0.7239819004524887,
+    "eval_macro_f1": 0.6706672272547746,
+    "eval_runtime": 1.8047,
+    "eval_samples_per_second": 122.457,
+    "eval_steps_per_second": 15.515,
+    "epoch": 3.0
+  },
+  "test_size": 638,
+  "final_test_metrics": {
+    "test_loss": 0.7274829149246216,
+    "test_accuracy": 0.7554858934169278,
+    "test_macro_f1": 0.6978874262051851,
+    "test_runtime": 5.316,
+    "test_samples_per_second": 120.016,
+    "test_steps_per_second": 15.049,
+    "epoch": 3.0
+  }
+}
+
+=== results/custom/laptop/gcn/gcn_laptop_fraction1_seed44_aspectfix.json ===
+{
+  "experiment": "laptop_fraction1_seed44_aspectfix",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "mps",
+  "seed": 44,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 2092,
+  "validation_size": 221,
+  "validation_metrics": {
+    "eval_loss": 0.8125073313713074,
+    "eval_accuracy": 0.7149321266968326,
+    "eval_macro_f1": 0.6716788766788767,
+    "eval_runtime": 1.8048,
+    "eval_samples_per_second": 122.454,
+    "eval_steps_per_second": 15.515,
+    "epoch": 3.0
+  },
+  "test_size": 638,
+  "final_test_metrics": {
+    "test_loss": 0.5799678564071655,
+    "test_accuracy": 0.7648902821316614,
+    "test_macro_f1": 0.7213268932542124,
+    "test_runtime": 5.3198,
+    "test_samples_per_second": 119.93,
+    "test_steps_per_second": 15.038,
     "epoch": 3.0
   }
 }
@@ -1561,6 +1995,86 @@
   }
 }
 
+=== results/custom/laptop/gcn/gcn_laptop_fraction0.1_seed43_aspectfix.json ===
+{
+  "experiment": "laptop_fraction0.1_seed43_aspectfix",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "mps",
+  "seed": 43,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 221,
+  "validation_size": 221,
+  "validation_metrics": {
+    "eval_loss": 0.8725707530975342,
+    "eval_accuracy": 0.6425339366515838,
+    "eval_macro_f1": 0.5725396825396826,
+    "eval_runtime": 1.7945,
+    "eval_samples_per_second": 123.152,
+    "eval_steps_per_second": 15.603,
+    "epoch": 3.0
+  },
+  "test_size": 638,
+  "final_test_metrics": {
+    "test_loss": 0.8126611113548279,
+    "test_accuracy": 0.622257053291536,
+    "test_macro_f1": 0.48865707664613733,
+    "test_runtime": 5.126,
+    "test_samples_per_second": 124.462,
+    "test_steps_per_second": 15.607,
+    "epoch": 3.0
+  }
+}
+
+=== results/custom/laptop/gcn/gcn_laptop_fraction0.1_seed44_aspectfix.json ===
+{
+  "experiment": "laptop_fraction0.1_seed44_aspectfix",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "mps",
+  "seed": 44,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 221,
+  "validation_size": 221,
+  "validation_metrics": {
+    "eval_loss": 0.8828836679458618,
+    "eval_accuracy": 0.6425339366515838,
+    "eval_macro_f1": 0.5710057451992936,
+    "eval_runtime": 1.776,
+    "eval_samples_per_second": 124.439,
+    "eval_steps_per_second": 15.766,
+    "epoch": 3.0
+  },
+  "test_size": 638,
+  "final_test_metrics": {
+    "test_loss": 0.8411707282066345,
+    "test_accuracy": 0.6363636363636364,
+    "test_macro_f1": 0.5223104758704319,
+    "test_runtime": 5.1039,
+    "test_samples_per_second": 125.003,
+    "test_steps_per_second": 15.674,
+    "epoch": 3.0
+  }
+}
+
 === results/custom/laptop/gcn/gcn_laptop_fraction0.25_seed42_aspectfix.json ===
 {
   "experiment": "laptop_fraction0.25_seed42_aspectfix",
@@ -1601,6 +2115,86 @@
   }
 }
 
+=== results/custom/laptop/gcn/gcn_laptop_fraction0.25_seed43_aspectfix.json ===
+{
+  "experiment": "laptop_fraction0.25_seed43_aspectfix",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "mps",
+  "seed": 43,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 527,
+  "validation_size": 221,
+  "validation_metrics": {
+    "eval_loss": 0.7672037482261658,
+    "eval_accuracy": 0.7058823529411765,
+    "eval_macro_f1": 0.6478781842464177,
+    "eval_runtime": 1.7724,
+    "eval_samples_per_second": 124.687,
+    "eval_steps_per_second": 15.797,
+    "epoch": 3.0
+  },
+  "test_size": 638,
+  "final_test_metrics": {
+    "test_loss": 0.6274216771125793,
+    "test_accuracy": 0.7272727272727273,
+    "test_macro_f1": 0.6357203978232947,
+    "test_runtime": 5.0222,
+    "test_samples_per_second": 127.036,
+    "test_steps_per_second": 15.929,
+    "epoch": 3.0
+  }
+}
+
+=== results/custom/laptop/gcn/gcn_laptop_fraction0.25_seed44_aspectfix.json ===
+{
+  "experiment": "laptop_fraction0.25_seed44_aspectfix",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "mps",
+  "seed": 44,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 527,
+  "validation_size": 221,
+  "validation_metrics": {
+    "eval_loss": 0.7917938828468323,
+    "eval_accuracy": 0.6877828054298643,
+    "eval_macro_f1": 0.6137044064937803,
+    "eval_runtime": 1.8748,
+    "eval_samples_per_second": 117.88,
+    "eval_steps_per_second": 14.935,
+    "epoch": 3.0
+  },
+  "test_size": 638,
+  "final_test_metrics": {
+    "test_loss": 0.6823865175247192,
+    "test_accuracy": 0.7115987460815048,
+    "test_macro_f1": 0.6404900669080537,
+    "test_runtime": 5.4106,
+    "test_samples_per_second": 117.917,
+    "test_steps_per_second": 14.786,
+    "epoch": 3.0
+  }
+}
+
 === results/custom/laptop/gcn/gcn_laptop_fraction0.5_seed42_aspectfix.json ===
 {
   "experiment": "laptop_fraction0.5_seed42_aspectfix",
@@ -1637,6 +2231,86 @@
     "test_runtime": 5.1734,
     "test_samples_per_second": 123.322,
     "test_steps_per_second": 15.464,
+    "epoch": 3.0
+  }
+}
+
+=== results/custom/laptop/gcn/gcn_laptop_fraction0.5_seed43_aspectfix.json ===
+{
+  "experiment": "laptop_fraction0.5_seed43_aspectfix",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "mps",
+  "seed": 43,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 1068,
+  "validation_size": 221,
+  "validation_metrics": {
+    "eval_loss": 0.7524212598800659,
+    "eval_accuracy": 0.7239819004524887,
+    "eval_macro_f1": 0.6788964303670185,
+    "eval_runtime": 2.0334,
+    "eval_samples_per_second": 108.683,
+    "eval_steps_per_second": 13.77,
+    "epoch": 3.0
+  },
+  "test_size": 638,
+  "final_test_metrics": {
+    "test_loss": 0.6795760989189148,
+    "test_accuracy": 0.7398119122257053,
+    "test_macro_f1": 0.6750297474935157,
+    "test_runtime": 5.2063,
+    "test_samples_per_second": 122.545,
+    "test_steps_per_second": 15.366,
+    "epoch": 3.0
+  }
+}
+
+=== results/custom/laptop/gcn/gcn_laptop_fraction0.5_seed44_aspectfix.json ===
+{
+  "experiment": "laptop_fraction0.5_seed44_aspectfix",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "mps",
+  "seed": 44,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 1068,
+  "validation_size": 221,
+  "validation_metrics": {
+    "eval_loss": 0.7076890468597412,
+    "eval_accuracy": 0.7285067873303167,
+    "eval_macro_f1": 0.6629342879342879,
+    "eval_runtime": 1.7995,
+    "eval_samples_per_second": 122.811,
+    "eval_steps_per_second": 15.56,
+    "epoch": 3.0
+  },
+  "test_size": 638,
+  "final_test_metrics": {
+    "test_loss": 0.661231517791748,
+    "test_accuracy": 0.7351097178683386,
+    "test_macro_f1": 0.655291288541565,
+    "test_runtime": 5.0984,
+    "test_samples_per_second": 125.138,
+    "test_steps_per_second": 15.691,
     "epoch": 3.0
   }
 }
