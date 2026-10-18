@@ -10,7 +10,6 @@ bash scripts/run_midterm_seed42.sh
 
 This runs corrected BERT + GCN on Restaurant and Laptop, evaluates Restaurant → Laptop, then runs 10%/25%/50% training budgets. Matching BERT-only seed-42 records are reused. It skips already completed `aspectfix` results and writes progress to `results/reports/corrected_seed42.md` and `.csv`. Epoch sweeps are deferred. Corrected checkpoints save model weights without optimizer state.
 
-The course's Week-6 plan includes data-efficiency and cross-domain experiments. This one-seed run is preliminary; the course's three-run statistics remain a follow-up task. Invalid legacy GCN records and their averages have been removed. Corrected GCN seeds 43/44 remain pending. The repair retains the project training protocol to match existing BERT records; it does not switch to the 2019 author protocol.
 
 Rebuild only the corrected comparison:
 
