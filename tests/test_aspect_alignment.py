@@ -29,6 +29,10 @@ class AspectAlignmentTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             find_aspect('Pizza', 'pizza', {'ordinal': 0})
 
+    def test_empty_ordinal_span_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, 'Empty aspect'):
+            find_aspect('Pizza', '', {'ordinal': 0})
+
 
 if __name__ == '__main__':
     unittest.main()

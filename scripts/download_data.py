@@ -5,13 +5,13 @@ from pathlib import Path
 from datasets import load_dataset
 
 datasets_to_download = {
-    "restaurant": "tomaarsen/setfit-absa-semeval-restaurants",
-    "laptop": "tomaarsen/setfit-absa-semeval-laptops",
+    "restaurant": ("tomaarsen/setfit-absa-semeval-restaurants", "8885372fe73256f96bb60f65b550538ac5c26047"),
+    "laptop": ("tomaarsen/setfit-absa-semeval-laptops", "4d69e3de15751c40ac3829ccd31c3fa190f2068f"),
 }
 
-for domain, dataset_id in datasets_to_download.items():
+for domain, (dataset_id, revision) in datasets_to_download.items():
     print(f"\nDownloading {domain}...")
-    dataset = load_dataset(dataset_id)
+    dataset = load_dataset(dataset_id, revision=revision)
 
     output_dir = Path("data/raw") / domain
     output_dir.mkdir(parents=True, exist_ok=True)

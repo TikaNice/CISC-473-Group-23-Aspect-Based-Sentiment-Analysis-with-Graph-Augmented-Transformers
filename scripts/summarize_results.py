@@ -5,11 +5,12 @@ import math
 import statistics
 from collections import defaultdict
 from pathlib import Path
-from src.result_paths import result_path
+from src.result_paths import GRAPH_TAGS, extension_grid, result_path, transfer_path, training_grid
 
 
 def write_csv(path, rows):
     if not rows:
+        path.unlink(missing_ok=True)
         return
     with path.open('w', newline='', encoding='utf-8') as handle:
         writer = csv.DictWriter(handle, fieldnames=list(rows[0]), lineterminator="\n")
@@ -23,15 +24,13 @@ def collect_records():
         for domain in ('restaurant', 'laptop'):
             settings = [('baseline', 1, 3, '')]
             settings += [('low_resource', f, 3, '') for f in (.1, .25, .5)]
-            settings += [('epoch_sweep', 1, e, f'ep{e}') for e in (1, 2, 4)]
             if domain == 'restaurant':
                 settings.append(('cross_domain', 1, 3, ''))
             for category, fraction, epochs, tag in settings:
                 for seed in (42, 43, 44):
                     run_tag = ('aspectfix_' + tag if tag else 'aspectfix') if model == 'gcn' else tag
                     if category == 'cross_domain':
-                        suffix = '_aspectfix' if model == 'gcn' else ''
-                        path = Path('results/cross_domain/restaurant_to_laptop') / model / f'{model}_restaurant_to_laptop_seed{seed}{suffix}.json'
+                        path = transfer_path(model, seed, run_tag)
                     else:
                         path = result_path(model, domain, fraction, seed, run_tag)
                     item = dict(category=category, domain='restaurant_to_laptop' if category == 'cross_domain' else domain,
@@ -59,6 +58,17 @@ def collect_records():
                     expected = 638 if category == 'cross_domain' or domain == 'laptop' else 1120
                     assert row['test_size'] == expected, path
                     records.append(row)
+    for model, domain, fraction, seed, graph in training_grid():
+        if graph == 'identity':
+            path = result_path(model, domain, fraction, seed, GRAPH_TAGS[graph])
+            status.append(dict(category='identity_control', domain=domain, model=model,
+                               fraction=fraction, epochs=3, seed=seed, revision='aspectfix_v1',
+                               status='complete' if path.is_file() else 'pending', file=str(path)))
+    for model, domain, fraction, seed, graph in extension_grid():
+        path = result_path(model, domain, fraction, seed, GRAPH_TAGS[graph])
+        status.append(dict(category=graph, domain=domain, model=model, fraction=fraction,
+                           epochs=3, seed=seed, revision=graph + '_v1',
+                           status='complete' if path.is_file() else 'pending', file=str(path)))
     for model in ('bert', 'gcn'):
         path = result_path(model, 'restaurant', 1, 42, 'aspectfix' if model == 'gcn' else '', smoke=True)
         if not path.is_file():
@@ -66,7 +76,10 @@ def collect_records():
         obj = json.loads(path.read_text())
         if model == 'gcn':
             assert obj.get('aspect_alignment') == 'case_sensitive_ordinal_v1'
-        row = dict.fromkeys(records[0], '')
+        row = dict.fromkeys(('file', 'category', 'domain', 'model', 'fraction', 'epochs', 'seed',
+                             'revision', 'train_size', 'validation_size', 'test_size',
+                             'validation_accuracy', 'validation_macro_f1', 'test_accuracy',
+                             'test_macro_f1'), '')
         row.update(file=str(path), category='smoke', domain='restaurant', model=model, fraction=1,
                    epochs=1, seed=42, revision='aspectfix_v1' if model == 'gcn' else 'bert_v1',
                    train_size=obj['train_size'], validation_size=obj['validation_size'],
@@ -103,13 +116,13 @@ def write_index(records, status, summaries):
              '## Availability by model and experiment', '',
              '| Model | Category | Complete | Pending |', '|---|---|---:|---:|']
     for model in ('bert', 'gcn'):
-        for category in ('baseline', 'low_resource', 'cross_domain', 'epoch_sweep'):
+        for category in ('baseline', 'low_resource', 'cross_domain', 'identity_control', 'pooling', 'constituency'):
             selected = [r for r in status if r['model'] == model and r['category'] == category]
             done = sum(r['status'] == 'complete' for r in selected)
             lines.append(f'| {model} | {category} | {done} | {len(selected)-done} |')
-    lines += ['', 'The full-data, reduced-data and cross-domain matrix contains 54 planned results. GCN epoch-budget extensions are listed separately as pending.', '',
+    lines += ['', 'The status matrix covers 48 model comparisons, 12 identity controls, 24 extension runs and six transfer evaluations.', '',
               '## Reports', '',
-              '- [Every valid run](reports/all_metrics.csv)',
+              '- [Original model comparison runs](reports/all_metrics.csv)',
               '- [Completed/pending run matrix](reports/experiment_status.csv)',
               '- [Grouped means and sample SD](reports/summary_by_group.csv)',
               '- [Full-data comparison](reports/baseline_summary.csv)',
