@@ -1,0 +1,16 @@
+{
+  "experiment": "restaurant_to_laptop_zero_shot",
+  "source_training_domain": "restaurant",
+  "target_test_domain": "laptop",
+  "model": "bert",
+  "run_tag": "",
+  "aspect_alignment": "historical",
+  "seed": 44,
+  "checkpoint": "checkpoints/baseline/restaurant/bert/bert_restaurant_fraction1_seed44/checkpoint-1215",
+  "source_result_sha256": "807c4406db557f27a95e29ef612fb14e8c1ee0597aefcc517844a27c192cd7bf",
+  "device": "cuda:0",
+  "test_size": 638,
+  "test_accuracy": 0.7366771159874608,
+  "test_macro_f1": 0.6800035832827503,
+  "note": "Zero-shot cross-domain evaluation only: no Laptop training or checkpoint selection."
+}

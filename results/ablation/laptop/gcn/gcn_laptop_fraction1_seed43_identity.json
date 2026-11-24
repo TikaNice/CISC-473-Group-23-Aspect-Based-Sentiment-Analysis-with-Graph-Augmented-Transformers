@@ -1,0 +1,37 @@
+{
+  "experiment": "laptop_fraction1_seed43_identity",
+  "model_type": "BERT pair + 2-layer identity-graph GCN + aspect pooling",
+  "device": "cuda:0",
+  "seed": 43,
+  "torch_version": "2.10.0a0+a36e1d39eb.nvinternal.main.41386253",
+  "dynamic_padding": true,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "graph_type": "identity",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 2092,
+  "validation_size": 221,
+  "validation_metrics": {
+    "eval_loss": 0.8664059638977051,
+    "eval_accuracy": 0.7330316742081447,
+    "eval_macro_f1": 0.6853555624163837,
+    "eval_runtime": 0.3721,
+    "eval_samples_per_second": 593.847,
+    "eval_steps_per_second": 75.239,
+    "epoch": 3.0
+  },
+  "test_size": 638,
+  "final_test_metrics": {
+    "test_loss": 0.7087105512619019,
+    "test_accuracy": 0.7633228840125392,
+    "test_macro_f1": 0.7125424923285427
+  }
+}

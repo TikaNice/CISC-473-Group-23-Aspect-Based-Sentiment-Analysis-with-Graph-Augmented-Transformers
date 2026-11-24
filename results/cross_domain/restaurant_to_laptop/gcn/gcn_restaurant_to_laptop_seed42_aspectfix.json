@@ -1,0 +1,16 @@
+{
+  "experiment": "restaurant_to_laptop_zero_shot",
+  "source_training_domain": "restaurant",
+  "target_test_domain": "laptop",
+  "model": "gcn",
+  "run_tag": "aspectfix",
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "seed": 42,
+  "checkpoint": "checkpoints/custom/restaurant/gcn/gcn_restaurant_fraction1_seed42_aspectfix/checkpoint-1215",
+  "source_result_sha256": "c4f5daf1ddcfaf80175196999b293bc0192a33c4e5cbf3cb4da003eda02d5431",
+  "device": "cuda:0",
+  "test_size": 638,
+  "test_accuracy": 0.7539184952978056,
+  "test_macro_f1": 0.6912662164527047,
+  "note": "Zero-shot cross-domain evaluation only: no Laptop training or checkpoint selection."
+}

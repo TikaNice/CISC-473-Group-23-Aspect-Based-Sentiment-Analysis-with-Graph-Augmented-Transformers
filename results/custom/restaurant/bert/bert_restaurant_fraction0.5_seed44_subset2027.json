@@ -1,0 +1,32 @@
+{
+  "experiment": "restaurant_fraction0.5_seed44_subset2027",
+  "seed": 44,
+  "subset_seed": 2027,
+  "epochs": 3.0,
+  "batch_size": 8,
+  "split_seed": 2026,
+  "optimizer_updates": 609,
+  "best_checkpoint_step": 609,
+  "train_size": 1617,
+  "validation_size": 362,
+  "model": "bert-base-uncased",
+  "model_type": "BERT sentence-aspect pair, CLS",
+  "device": "cuda:0",
+  "torch_version": "2.10.0a0+a36e1d39eb.nvinternal.main.41386253",
+  "dynamic_padding": true,
+  "validation_metrics": {
+    "eval_loss": 0.7078112363815308,
+    "eval_accuracy": 0.7541436464088398,
+    "eval_macro_f1": 0.6070937364040813,
+    "eval_runtime": 1.4114,
+    "eval_samples_per_second": 256.487,
+    "eval_steps_per_second": 32.592,
+    "epoch": 3.0
+  },
+  "test_size": 1120,
+  "final_test_metrics": {
+    "test_loss": 0.5471387505531311,
+    "test_accuracy": 0.8080357142857143,
+    "test_macro_f1": 0.6931947126996234
+  }
+}

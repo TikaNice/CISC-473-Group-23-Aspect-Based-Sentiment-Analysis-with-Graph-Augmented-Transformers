@@ -1,0 +1,73 @@
+{
+  "indirect_sentiment_proxy": {
+    "title": "Indirect sentiment from a measurable outcome (proxy)",
+    "definition": "An implicit aspect is an evaluated target without an explicit mention. This proxy retains an explicitly named target whose evaluation must be inferred from a duration or device failure. Retain only outcomes linked to the annotated target and with no direct evaluative wording about it.",
+    "pattern": "\\b(?:took|take|waiting|waited|wait|battery|boot time|charge)\\b.{0,55}\\b(?:\\d+(?:[-–]\\d+)?|ten|an|a few)\\s*(?:hours?|minutes?|seconds?)\\b|\\b(?:crashed|froze|wouldn't boot|would not boot)\\b",
+    "min_rows_for_rate": 3,
+    "verified": [
+      {
+        "domain": "restaurant",
+        "index": 1016,
+        "reason": "The 2½-hour delay implies dissatisfaction with being served."
+      },
+      {
+        "domain": "laptop",
+        "index": 610,
+        "reason": "The half-hour removal and need for tweezers imply a usability failure of the reader."
+      },
+      {
+        "domain": "laptop",
+        "index": 237,
+        "reason": "The battery is evaluated by how closely its duration meets the advertised benchmark."
+      },
+      {
+        "domain": "restaurant",
+        "index": 302,
+        "reason": "The 20-minute duration conveys dissatisfaction with the wait itself."
+      },
+      {
+        "domain": "restaurant",
+        "index": 687,
+        "reason": "Nearly an hour of waiting for a forgotten order implies a service delay."
+      },
+      {
+        "domain": "laptop",
+        "index": 466,
+        "reason": "The crash is the only cue linked to the Windows 7 setup, although the cause is unspecified."
+      },
+      {
+        "domain": "laptop",
+        "index": 611,
+        "reason": "The time and tweezers required imply that card removal was difficult."
+      }
+    ]
+  },
+  "sarcasm": {
+    "title": "Sarcasm",
+    "definition": "Count mocking or ironic intent tied to the annotated target when the sentence supports it, such as apparent enthusiasm contradicted by the described outcome. Exclude literal praise, ordinary complaints, and rhetorical questions without clear irony.",
+    "pattern": "\\b(?:yeah right|as if|thanks? for|apparently|so much for|way to go|how nice|i love how|who knew|go figure|what a (?:joke|surprise|crime)|who (?:needs|really notices)|only took|would you ever believe|excuse me|can't wait|this is the place to be)\\b",
+    "min_rows_for_rate": 5,
+    "verified": [
+      {
+        "domain": "restaurant",
+        "index": 618,
+        "reason": "The mock recommendation reverses the apparent enthusiasm about high prices."
+      },
+      {
+        "domain": "laptop",
+        "index": 146,
+        "reason": "Ostensibly looking forward to total failure mocks the hardware’s reliability."
+      },
+      {
+        "domain": "restaurant",
+        "index": 619,
+        "reason": "The recommendation is ironic because the same clause describes the food as nasty."
+      },
+      {
+        "domain": "restaurant",
+        "index": 620,
+        "reason": "The enthusiastic recommendation clashes with the author’s disparaging description of the setting."
+      }
+    ]
+  }
+}

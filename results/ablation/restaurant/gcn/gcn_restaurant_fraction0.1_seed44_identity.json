@@ -1,0 +1,37 @@
+{
+  "experiment": "restaurant_fraction0.1_seed44_identity",
+  "model_type": "BERT pair + 2-layer identity-graph GCN + aspect pooling",
+  "device": "cuda:0",
+  "seed": 44,
+  "torch_version": "2.10.0a0+a36e1d39eb.nvinternal.main.41386253",
+  "dynamic_padding": true,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "graph_type": "identity",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 335,
+  "validation_size": 362,
+  "validation_metrics": {
+    "eval_loss": 0.7894934415817261,
+    "eval_accuracy": 0.6657458563535912,
+    "eval_macro_f1": 0.369037814847635,
+    "eval_runtime": 1.4258,
+    "eval_samples_per_second": 253.901,
+    "eval_steps_per_second": 32.264,
+    "epoch": 3.0
+  },
+  "test_size": 1120,
+  "final_test_metrics": {
+    "test_loss": 0.7247710227966309,
+    "test_accuracy": 0.6928571428571428,
+    "test_macro_f1": 0.4299602575846353
+  }
+}

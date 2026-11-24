@@ -1,0 +1,43 @@
+{
+  "experiment": "restaurant_fraction0.1_seed42_aspectfix_subset2027",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "cuda:0",
+  "seed": 42,
+  "subset_seed": 2027,
+  "epochs": 3.0,
+  "batch_size": 8,
+  "split_seed": 2026,
+  "optimizer_updates": 120,
+  "best_checkpoint_step": 40,
+  "torch_version": "2.10.0a0+a36e1d39eb.nvinternal.main.41386253",
+  "dynamic_padding": true,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "graph_type": "dependency",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 313,
+  "validation_size": 362,
+  "validation_metrics": {
+    "eval_loss": 0.8465456366539001,
+    "eval_accuracy": 0.6657458563535912,
+    "eval_macro_f1": 0.2664455500276396,
+    "eval_runtime": 0.5324,
+    "eval_samples_per_second": 680.002,
+    "eval_steps_per_second": 86.409,
+    "epoch": 3.0
+  },
+  "test_size": 1120,
+  "final_test_metrics": {
+    "test_loss": 0.8724734783172607,
+    "test_accuracy": 0.65,
+    "test_macro_f1": 0.2626262626262626
+  }
+}

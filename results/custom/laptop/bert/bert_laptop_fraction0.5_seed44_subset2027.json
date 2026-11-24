@@ -1,0 +1,32 @@
+{
+  "experiment": "laptop_fraction0.5_seed44_subset2027",
+  "seed": 44,
+  "subset_seed": 2027,
+  "epochs": 3.0,
+  "batch_size": 8,
+  "split_seed": 2026,
+  "optimizer_updates": 390,
+  "best_checkpoint_step": 390,
+  "train_size": 1037,
+  "validation_size": 221,
+  "model": "bert-base-uncased",
+  "model_type": "BERT sentence-aspect pair, CLS",
+  "device": "cuda:0",
+  "torch_version": "2.10.0a0+a36e1d39eb.nvinternal.main.41386253",
+  "dynamic_padding": true,
+  "validation_metrics": {
+    "eval_loss": 0.7674625515937805,
+    "eval_accuracy": 0.7149321266968326,
+    "eval_macro_f1": 0.6484748470033086,
+    "eval_runtime": 0.9802,
+    "eval_samples_per_second": 225.454,
+    "eval_steps_per_second": 28.564,
+    "epoch": 3.0
+  },
+  "test_size": 638,
+  "final_test_metrics": {
+    "test_loss": 0.62098228931427,
+    "test_accuracy": 0.7476489028213166,
+    "test_macro_f1": 0.692409492826871
+  }
+}

@@ -1,0 +1,3 @@
+category,domain,model,fraction,epochs,revision,n_seeds,seeds,statistics_status,test_accuracy_mean,test_accuracy_std,test_macro_f1_mean,test_macro_f1_std,validation_macro_f1_mean,validation_macro_f1_std
+cross_domain,restaurant_to_laptop,bert,1,3,bert_v1,3,"42,43,44",three_seeds,0.745559038662487,0.008043262444274148,0.6905636109373702,0.010068347467825997,,
+cross_domain,restaurant_to_laptop,gcn,1,3,aspectfix_v1,3,"42,43,44",three_seeds,0.7497387669801463,0.013051197488815886,0.6819652798345346,0.013488254798339505,,

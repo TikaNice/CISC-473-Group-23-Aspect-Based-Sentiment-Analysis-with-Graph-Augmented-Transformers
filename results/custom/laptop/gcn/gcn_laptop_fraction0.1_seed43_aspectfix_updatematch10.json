@@ -1,0 +1,43 @@
+{
+  "experiment": "laptop_fraction0.1_seed43_aspectfix_updatematch10",
+  "model_type": "BERT pair + 2-layer dependency GCN + aspect pooling",
+  "device": "cuda:0",
+  "seed": 43,
+  "subset_seed": 2026,
+  "epochs": 30.0,
+  "batch_size": 8,
+  "split_seed": 2026,
+  "optimizer_updates": 840,
+  "best_checkpoint_step": 224,
+  "torch_version": "2.10.0a0+a36e1d39eb.nvinternal.main.41386253",
+  "dynamic_padding": true,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "graph_type": "dependency",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 30.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 221,
+  "validation_size": 221,
+  "validation_metrics": {
+    "eval_loss": 1.4962464570999146,
+    "eval_accuracy": 0.6244343891402715,
+    "eval_macro_f1": 0.5661315972355456,
+    "eval_runtime": 1.5741,
+    "eval_samples_per_second": 140.4,
+    "eval_steps_per_second": 17.788,
+    "epoch": 30.0
+  },
+  "test_size": 638,
+  "final_test_metrics": {
+    "test_loss": 1.368186116218567,
+    "test_accuracy": 0.6504702194357367,
+    "test_macro_f1": 0.564779724947284
+  }
+}

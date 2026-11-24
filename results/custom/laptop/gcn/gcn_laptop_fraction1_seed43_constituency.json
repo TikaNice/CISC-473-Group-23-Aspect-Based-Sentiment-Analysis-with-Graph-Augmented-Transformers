@@ -1,0 +1,45 @@
+{
+  "experiment": "laptop_fraction1_seed43_constituency",
+  "model_type": "BERT pair + 2-layer constituency GCN + aspect pooling",
+  "device": "cuda:0",
+  "seed": 43,
+  "torch_version": "2.10.0a0+a36e1d39eb.nvinternal.main.41386253",
+  "dynamic_padding": true,
+  "aspect_alignment": "case_sensitive_ordinal_v1",
+  "graph_type": "constituency",
+  "training_config": {
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "epochs": 3.0,
+    "batch_size": 8,
+    "max_length": 128,
+    "split_seed": 2026,
+    "selection_metric": "validation_macro_f1",
+    "warmup_ratio": 0.0
+  },
+  "train_size": 2092,
+  "validation_size": 221,
+  "validation_metrics": {
+    "eval_loss": 0.8746024370193481,
+    "eval_accuracy": 0.7420814479638009,
+    "eval_macro_f1": 0.7004527339170145,
+    "eval_runtime": 0.889,
+    "eval_samples_per_second": 248.598,
+    "eval_steps_per_second": 31.497,
+    "epoch": 3.0
+  },
+  "constituency_parser": {
+    "name": "stanza",
+    "version": "1.10.1",
+    "resources_version": "1.10.0",
+    "constituency": "ptb3-revised_charlm",
+    "pos": "combined_charlm",
+    "graph_rule": "nonclausal_phrase_cliques_2_to_5_v1"
+  },
+  "test_size": 638,
+  "final_test_metrics": {
+    "test_loss": 0.7060726881027222,
+    "test_accuracy": 0.7601880877742947,
+    "test_macro_f1": 0.7102742811855293
+  }
+}

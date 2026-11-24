@@ -1,0 +1,28 @@
+{
+  "experiment": "laptop_fraction1_seed43_ep2",
+  "seed": 43,
+  "train_size": 2092,
+  "validation_size": 221,
+  "model": "bert-base-uncased",
+  "model_type": "BERT sentence-aspect pair, CLS",
+  "device": "mps",
+  "validation_metrics": {
+    "eval_loss": 0.7598823308944702,
+    "eval_accuracy": 0.7194570135746606,
+    "eval_macro_f1": 0.6776356638848359,
+    "eval_runtime": 1.8465,
+    "eval_samples_per_second": 119.683,
+    "eval_steps_per_second": 15.164,
+    "epoch": 2.0
+  },
+  "test_size": 638,
+  "final_test_metrics": {
+    "test_loss": 0.6026415228843689,
+    "test_accuracy": 0.7695924764890282,
+    "test_macro_f1": 0.71412504122257,
+    "test_runtime": 5.1703,
+    "test_samples_per_second": 123.396,
+    "test_steps_per_second": 15.473,
+    "epoch": 2.0
+  }
+}
