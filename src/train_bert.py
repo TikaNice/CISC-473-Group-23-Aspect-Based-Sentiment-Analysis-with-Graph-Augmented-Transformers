@@ -6,9 +6,7 @@ Example: python -m src.train_bert --domain restaurant --smoke
 Uses group-disjoint validation split, 3-class polarity labels, and test gold only
 for FINAL evaluation (never for checkpoint selection). No reported results are fabricated.
 """
-from src.result_paths import result_path, checkpoint_dir, write_json
-from src.predictions import prediction_path, write_predictions
-from src.batch_padding import collate_bert, dynamic_padding_enabled
+from src.result_paths import result_path, checkpoint_dir
 
 import argparse
 import json
@@ -25,7 +23,6 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer, Trai
 
 LABEL_TO_ID = {'negative': 0, 'neutral': 1, 'positive': 2}
 MODEL = 'bert-base-uncased'
-MODEL_REVISION = '86b5e0934494bd15c9632b12f734a8a67f723594'
 DATA_SPLIT_SEED = 2026
 
 
@@ -102,9 +99,9 @@ def main():
         val_rows = val_rows[:32]
     print(f'Final train={len(train_rows)}, validation={len(val_rows)}')
 
-    tokenizer = AutoTokenizer.from_pretrained(MODEL, revision=MODEL_REVISION, use_fast=True)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL, use_fast=True)
     model = AutoModelForSequenceClassification.from_pretrained(
-        MODEL, revision=MODEL_REVISION, num_labels=3, id2label={v:k for k,v in LABEL_TO_ID.items()},
+        MODEL, num_labels=3, id2label={v:k for k,v in LABEL_TO_ID.items()},
         label2id=LABEL_TO_ID,
     )
     train_ds = make_dataset(train_rows, tokenizer)
@@ -129,7 +126,6 @@ def main():
         metric_for_best_model='macro_f1',
         greater_is_better=True,
         save_total_limit=1,
-        save_only_model=True,
         seed=args.seed,
         data_seed=DATA_SPLIT_SEED,
         report_to='none',
@@ -148,17 +144,13 @@ def main():
 
     trainer = Trainer(model=model, args=training_args,
                       train_dataset=train_ds, eval_dataset=val_ds,
-                      data_collator=collate_bert,
                       processing_class=tokenizer, compute_metrics=metrics)
     print('Actual Trainer device:', trainer.args.device)
     trainer.train()
-    trainer.save_state()
     result = {'experiment': suffix, 'seed': args.seed,
               'train_size':len(train_rows), 'validation_size':len(val_rows),
               'model':MODEL, 'model_type':'BERT sentence-aspect pair, CLS',
               'device':str(trainer.args.device),
-              'torch_version': str(torch.__version__),
-              'dynamic_padding': dynamic_padding_enabled(),
               'validation_metrics': trainer.evaluate(val_ds)}
 
     # Never use the official gold test to choose hyperparameters or checkpoints.
@@ -166,28 +158,15 @@ def main():
         test_gold = Path(f'data/processed/{args.domain}/test_gold.jsonl')
         if test_gold.is_file():
             test_rows = read_jsonl(test_gold)
-            test_ds = make_dataset(test_rows, tokenizer)
-            pred = trainer.predict(test_ds)
-            y_true = np.asarray(pred.label_ids)
-            y_pred = np.asarray(pred.predictions).argmax(axis=-1)
             result['test_size'] = len(test_rows)
-            result['final_test_metrics'] = {
-                'test_loss': float(pred.metrics.get('test_loss', 0.0)),
-                'test_accuracy': float(accuracy_score(y_true, y_pred)),
-                'test_macro_f1': float(f1_score(y_true, y_pred, labels=[0, 1, 2],
-                                                average='macro', zero_division=0)),
-            }
-            path = prediction_path('bert', args.domain, args.train_fraction, args.seed,
-                                   args.run_tag, args.domain)
-            write_predictions(path, test_rows, y_pred, 'bert', args.domain, args.domain,
-                              args.train_fraction, args.seed, args.run_tag,
-                              graph='none', device=str(trainer.args.device))
-            print('Saved predictions:', path)
+            result['final_test_metrics'] = trainer.evaluate(make_dataset(test_rows, tokenizer), metric_key_prefix='test')
         else:
             print(f'WARNING: {test_gold} not found; skipping official test metrics')
 
     target = result_path('bert', args.domain, args.train_fraction, args.seed, args.run_tag, args.smoke)
-    write_json(target, result)
+    target.parent.mkdir(exist_ok=True,parents=True)
+    with target.open('w',encoding='utf-8') as f:
+        json.dump(result,f,indent=2,default=float)
     print('Saved:',target)
     print(json.dumps(result,indent=2,default=float))
 

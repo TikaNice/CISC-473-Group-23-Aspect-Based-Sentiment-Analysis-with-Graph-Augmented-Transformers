@@ -1,16 +1,17 @@
 # Quickstart
 
-Run commands from `final/code`, including after extracting the code ZIP. The project compares BERT with a BERT + dependency GCN model on SemEval-2014 Restaurant and Laptop.
+Run all commands from the project root. The project compares BERT with a BERT + dependency GCN model on SemEval-2014 Restaurant and Laptop.
 
 ## 1. Set up the environment
 
 ```bash
-python3.12 -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
+python -m pip install -r requirements.txt
+python -m spacy download en_core_web_sm
 ```
 
-For an existing installation, activate it with `source .venv/bin/activate`. The command above installs the CPU environment. The final results were recorded on CUDA. Training JSONs record the exact PyTorch build and device. Use `HF_HUB_OFFLINE=0` on a machine without the BERT files cached.
+For an existing installation, activate it with `source .venv/bin/activate`. The first training run downloads `bert-base-uncased` if it is not already cached. `requirements-current.txt` records the versions used in the local experiment environment.
 
 ## 2. Prepare the data
 
@@ -76,17 +77,17 @@ Evaluate the Restaurant-trained models on the Laptop Gold Test set:
 python -m scripts.eval_cross_domain --model all --seeds 42 43 44
 ```
 
-This runs inference using each model's best Restaurant validation checkpoint. A new inference pass requires local checkpoints. Existing transfer results are reused when the prediction evidence validates. Use `--model bert` or `--model gcn` to select a model, and `--seeds 42` to evaluate one seed. Add `--overwrite` to replace existing cross-domain results.
+This runs inference using each model's best Restaurant validation checkpoint. The checkpoints must be available locally; result JSONs alone are not enough. Use `--model bert` or `--model gcn` to select a model, and `--seeds 42` to evaluate one seed. Add `--overwrite` to replace existing cross-domain results.
 
 ### Epoch-budget comparison
 
 Run separate experiments with budgets of 1, 2 and 4 epochs:
 
 ```bash
-MODELS=bert bash scripts/run_epoch_sweep.sh
+bash scripts/run_epoch_sweep.sh
 ```
 
-This exploratory arm is separate from the final comparisons. To select a subset:
+The 3-epoch results come from the full-data comparison. To select a subset:
 
 ```bash
 DOMAINS=laptop MODELS=bert SEEDS=42 EPOCHS="1 2" bash scripts/run_epoch_sweep.sh
@@ -109,14 +110,10 @@ It activates `.venv` automatically. Set `SEEDS="42 43 44"` to cover all three se
 After preparing the environment and data:
 
 ```bash
-HF_HUB_OFFLINE=0 bash scripts/reproduce.sh --train
+bash scripts/reproduce.sh
 ```
 
-This resumes the grid of 60 training runs and six transfer evaluations, then rebuilds the results. The runner defaults to CPU. Set `ACCELERATE_USE_CPU=false` with a CUDA-enabled PyTorch installation to use a GPU. The grid checks saved result and prediction files before skipping training. Restaurant full-data BERT and dependency runs also require their best validation checkpoints. The epoch-budget arm is separate. Direct training commands rerun the requested experiment and can overwrite its files.
-
-The trainers round each batch's longest input up to a multiple of eight while
-retaining the 128-token limit. The result JSON records whether this is enabled.
-Set `CISC473_DYNAMIC_PADDING=0` to use fixed 128-token batches for a run.
+This includes full-data, low-resource and epoch-budget training, cross-domain evaluation, and report generation. Batch runners skip existing result JSONs. Direct training commands rerun the requested experiment and can overwrite its files.
 
 ## 4. Read and rebuild reports
 
@@ -134,12 +131,12 @@ Reports are saved in `results/reports/`:
 | `baseline_summary.csv` | Full-data comparison |
 | `low_resource_summary.csv` | Training-data budgets, including full data |
 | `cross_domain_summary.csv` | Restaurant-to-Laptop evaluation |
-| `ablation_summary.csv` | Dependency-versus-identity results and paired source paths |
+| `epoch_sweep_summary.csv` | Epoch-budget comparison |
 | `all_metrics.csv` | Individual run metrics |
 | `summary_by_group.csv` | Group means, sample standard deviations and seed counts |
 | `experiment_status.csv` | Completed and pending runs |
 
-Missing runs are marked as pending in the summary tools. The full rebuild requires all canonical run records and predictions. Groups with one completed seed have no standard deviation. Smoke tests are excluded from grouped benchmark statistics.
+Missing runs are marked as pending. Groups with one completed seed have no standard deviation. Smoke tests are excluded from grouped benchmark statistics.
 
 For a comparison at one seed:
 
@@ -148,19 +145,6 @@ python -m scripts.summarize_corrected --seed 42
 ```
 
 This writes `corrected_seed42.csv` and `corrected_seed42.md`. Change the seed to `43` or `44` as needed.
-
-To rebuild the report and deck PDFs from a complete set of saved records, install
-LaTeX with Beamer, TikZ and `latexmk`, plus Poppler (`pdftotext` and `pdfinfo`).
-From `final/code` run:
-
-```bash
-bash scripts/reproduce.sh --pdf
-python -m scripts.qa_check
-```
-
-Keep `final/report/Group23_Final_Report.tex` and `mtp/Group23_Slides.tex` at their
-paths relative to `final/code`. These sources are included in the code ZIP. The
-build uses the bundled data, with no model download needed for PDF regeneration.
 
 ## 5. Output files
 

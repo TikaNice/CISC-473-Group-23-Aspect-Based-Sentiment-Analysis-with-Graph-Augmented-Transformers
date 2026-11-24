@@ -7,7 +7,6 @@ Uses saved Trainer BEST validation checkpoint; never trains on Laptop.
 """
 import argparse
 import json
-from hashlib import sha256
 from pathlib import Path
 
 import numpy as np
@@ -16,14 +15,38 @@ import torch
 from sklearn.metrics import accuracy_score, f1_score
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, Trainer, TrainingArguments
 
-from src.train_bert import MODEL, MODEL_REVISION, read_jsonl, make_dataset
-from src.batch_padding import collate_bert
-from src.evidence import INVALID_EVIDENCE, validate_result
-from src.result_paths import best_restaurant_checkpoint, result_path, transfer_path, write_json
-from src.predictions import prediction_path, write_predictions
+from src.train_bert import MODEL, read_jsonl, make_dataset
+from src.result_paths import checkpoint_dir
 from src.train_gcn import encode_row, collate
 from src.model_gcn import BertDependencyGCN
 from datasets import Dataset
+
+
+def find_best_checkpoint(model_name, seed, run_tag=""):
+    root = checkpoint_dir(model_name, 'restaurant', 1, seed, run_tag)
+    if not root.is_dir():
+        raise FileNotFoundError(f'Missing {root}. Run original Restaurant training on this Mac first.')
+    folders = sorted(root.glob('checkpoint-*'),
+                     key=lambda p: int(p.name.split('-')[-1]) if p.name.split('-')[-1].isdigit() else -1)
+    folders = [p for p in folders if p.is_dir()]
+    if not folders:
+        raise FileNotFoundError(f'No checkpoint-* folders under {root}. JSON metrics alone do not contain model weights.')
+    # Hugging Face trainer_state.json records best_model_checkpoint. Do NOT assume highest step is best.
+    for folder in reversed(folders):
+        state_file = folder / 'trainer_state.json'
+        if not state_file.is_file():
+            continue
+        info = json.loads(state_file.read_text(encoding='utf-8'))
+        best = info.get('best_model_checkpoint')
+        if best:
+            p = Path(best)
+            for candidate in (root / p.name,):
+                if candidate.is_dir():
+                    return candidate
+    if len(folders) == 1:
+        return folders[0]
+    raise RuntimeError(f'Cannot identify best validation checkpoint in {root}; available: {folders}. '
+                       'Please inspect trainer_state.json instead of selecting the last checkpoint arbitrarily.')
 
 
 def load_gcn_weights(model, checkpoint):
@@ -52,23 +75,16 @@ def main():
     if args.model in ('gcn', 'all') and not args.gcn_run_tag.startswith('aspectfix'):
         parser.error('GCN evaluation requires a corrected aspectfix run; legacy GCN results were retired')
 
+    def target_path(model, seed):
+        tag = '_' + args.gcn_run_tag if model == 'gcn' and args.gcn_run_tag else ''
+        return Path('results/cross_domain/restaurant_to_laptop') / model / f'{model}_restaurant_to_laptop_seed{seed}{tag}.json'
+
     models = ['bert', 'gcn'] if args.model == 'all' else [args.model]
-    pending = {}
-    for model in models:
-        graph = 'dependency' if model == 'gcn' else 'none'
-        tag = args.gcn_run_tag if model == 'gcn' else ''
-        for seed in args.seeds:
-            target = transfer_path(model, seed, tag)
-            if not args.overwrite and target.is_file():
-                try:
-                    validate_result(model, 'restaurant', 1.0, seed, graph, 'laptop', tag)
-                except INVALID_EVIDENCE as exc:
-                    print(f'Redoing incomplete {target}: {exc}')
-                else:
-                    continue
-            pending.setdefault(model, []).append((seed, tag, target))
-    if not pending:
-        print('All requested transfer results and predictions validate.')
+    if not args.overwrite and all(
+        target_path(model, seed).is_file()
+        for model in models for seed in args.seeds
+    ):
+        print('All requested cross-domain results exist; skipping inference (--overwrite to rerun).')
         return
 
     gold = Path('data/processed/laptop/test_gold.jsonl')
@@ -78,12 +94,13 @@ def main():
     if len(gold_rows) != 638:
         print(f'WARNING: Laptop three-class Gold Test count is {len(gold_rows)}, expected 638')
 
-    tokenizer = AutoTokenizer.from_pretrained(MODEL, revision=MODEL_REVISION, use_fast=True)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL, use_fast=True)
+    models = ['bert', 'gcn'] if args.model == 'all' else [args.model]
     output_dir = Path('results/cross_domain')
     output_dir.mkdir(parents=True, exist_ok=True)
     dataset_cache = {}
 
-    for model_name, runs in pending.items():
+    for model_name in models:
         if model_name == 'bert':
             dataset_cache[model_name] = make_dataset(gold_rows, tokenizer)
         else:
@@ -91,17 +108,18 @@ def main():
             encoded = [encode_row(r, tokenizer, nlp) for r in gold_rows]
             dataset_cache[model_name] = Dataset.from_list(encoded)
 
-        for seed, tag, target in runs:
-            graph = 'dependency' if model_name == 'gcn' else 'none'
-            validate_result(model_name, 'restaurant', 1.0, seed, graph, tag=tag)
-            source = result_path(model_name, 'restaurant', 1, seed, tag)
-            source_hash = sha256(source.read_bytes()).hexdigest()
-            checkpoint = best_restaurant_checkpoint(model_name, seed, tag)
+        for seed in args.seeds:
+            target = target_path(model_name, seed)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            if target.exists() and not args.overwrite:
+                print(f'Skipping existing {target} (--overwrite to rerun)')
+                continue
+            checkpoint = find_best_checkpoint(model_name, seed, args.gcn_run_tag if model_name == 'gcn' else '')
             print(f'\nEvaluating {model_name} seed={seed}: Restaurant checkpoint {checkpoint} -> Laptop Gold Test')
             if model_name == 'bert':
                 model = AutoModelForSequenceClassification.from_pretrained(str(checkpoint))
             else:
-                model = load_gcn_weights(BertDependencyGCN(model_name=MODEL, revision=MODEL_REVISION), checkpoint)
+                model = load_gcn_weights(BertDependencyGCN(model_name=MODEL), checkpoint)
 
             opts = TrainingArguments(
                 output_dir=str(output_dir / f'_eval_{model_name}_seed{seed}'),
@@ -112,7 +130,7 @@ def main():
             )
             trainer = Trainer(
                 model=model, args=opts,
-                data_collator=collate if model_name == 'gcn' else collate_bert,
+                data_collator=collate if model_name == 'gcn' else None,
                 processing_class=tokenizer,
             )
             pred = trainer.predict(dataset_cache[model_name])
@@ -128,28 +146,17 @@ def main():
                 'source_training_domain': 'restaurant',
                 'target_test_domain': 'laptop',
                 'model': model_name,
-                'run_tag': tag,
+                'run_tag': args.gcn_run_tag if model_name == 'gcn' else '',
                 'aspect_alignment': 'case_sensitive_ordinal_v1' if model_name == 'gcn' and args.gcn_run_tag else 'historical',
                 'seed': seed,
                 'checkpoint': str(checkpoint),
-                'source_result_sha256': source_hash,
                 'device': str(trainer.args.device),
                 'test_size': len(truth),
                 'test_accuracy': float(accuracy_score(truth, guessed)),
                 'test_macro_f1': float(f1_score(truth, guessed, labels=[0, 1, 2], average='macro', zero_division=0)),
                 'note': 'Zero-shot cross-domain evaluation only: no Laptop training or checkpoint selection.',
             }
-            # Write the per-example predictions BEFORE the result record: the
-            # result JSON is the resume marker, so the reverse order can leave a
-            # finished record with no predictions and skip them forever.
-            ppath = prediction_path(model_name, 'restaurant', 1, seed,
-                                    tag, 'laptop')
-            write_predictions(ppath, gold_rows, guessed, model_name, 'restaurant', 'laptop',
-                              1, seed, tag,
-                              graph=graph,
-                              device=str(trainer.args.device))
-            write_json(target, result)
-            print('Saved predictions:', ppath)
+            target.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding='utf-8')
             print(json.dumps(result, indent=2, ensure_ascii=False))
             print('Saved:', target)
 
