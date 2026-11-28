@@ -65,7 +65,8 @@ The first table gives mean ± sample SD. The budget and graph-control tables giv
 # Rebuild project result tables from saved records after preparing the data.
 bash scripts/reproduce.sh
 
-# Resume training and transfer, then rebuild (CPU by default).
+# Resume the main/identity grid and transfer; extensions must already exist.
+# For a fresh complete run, follow QUICKSTART.md Section 7 (CUDA extensions).
 HF_HUB_OFFLINE=0 bash scripts/reproduce.sh --train
 
 # Rebuild both PDFs from the complete project workspace (see QUICKSTART.md).
@@ -73,6 +74,9 @@ bash scripts/reproduce.sh --pdf
 ```
 
 Data preparation and environment details are in [QUICKSTART.md](QUICKSTART.md).
+[The final reproduction procedure](QUICKSTART.md#7-final-experiment-reproduction-seeds-and-complete-execution-order)
+lists the recorded seeds, pinned revisions, CUDA/Stanza preparation, and the
+separate main, extension and robustness commands.
 Architecture, protocol and provenance are in [IMPLEMENTATION.md](IMPLEMENTATION.md).
 Checkpoint placement and inference are in [CHECKPOINTS.md](CHECKPOINTS.md).
 

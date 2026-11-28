@@ -107,7 +107,7 @@ SEEDS="43 44" bash scripts/run_midterm_seeds.sh
 
 It activates `.venv` automatically. Set `SEEDS="42 43 44"` to cover all three seeds. Run only one training runner at a time.
 
-### Run the complete experiment matrix
+### Run the main experiment matrix
 
 After preparing the environment and data:
 
@@ -115,7 +115,7 @@ After preparing the environment and data:
 HF_HUB_OFFLINE=0 bash scripts/reproduce.sh --train
 ```
 
-This resumes the grid of 60 training runs and six transfer evaluations, then rebuilds the results. The runner defaults to CPU. Set `ACCELERATE_USE_CPU=false` with a CUDA-enabled PyTorch installation to use a GPU. The grid checks saved result and prediction files before skipping training. Restaurant full-data BERT and dependency runs also require their best validation checkpoints. The epoch-budget arm is separate. Direct training commands rerun the requested experiment and can overwrite its files.
+This resumes the grid of 60 training runs and six transfer evaluations, then rebuilds the results. On a fresh training workspace, complete the extension runs in Section 7 before this combined command: the final evidence check also requires those 24 records. The runner defaults to CPU. Set `ACCELERATE_USE_CPU=false` with a CUDA-enabled PyTorch installation to use a GPU. The grid checks saved result and prediction files before skipping training. Restaurant full-data BERT and dependency runs also require their best validation checkpoints. The epoch-budget arm is separate. Direct training commands rerun the requested experiment and can overwrite its files.
 
 The trainers round each batch's longest input up to a multiple of eight while
 retaining the 128-token limit. The result JSON records whether this is enabled.
@@ -188,3 +188,132 @@ python -m scripts.extract_epoch_validation_curve
 ```
 
 The extracted history may be incomplete if the required checkpoints or metadata are unavailable.
+
+
+## 7. Final experiment reproduction: seeds and complete execution order
+
+### Recorded seeds and versions
+
+| Setting | Value | Source |
+|---|---|---|
+| Training seeds | 42, 43, 44 | `src/result_paths.py`; per-run JSONs |
+| Train/validation sentence-group split | 2026 | `DATA_SPLIT_SEED` in `src/train_bert.py` |
+| Main training-subset sampling | 2026 | `DEFAULT_SUBSET_SEED` in `src/train_bert.py` |
+| Alternative subset experiment | 2027; validation split stays 2026 | `scripts/run_robustness.py`, arm `subset2027` |
+| Longer 10% training experiment | subset 2026; 30 epochs; seeds 42, 43, 44 | arm `updatematch10` |
+| BERT revision | `86b5e0934494bd15c9632b12f734a8a67f723594` | `MODEL_REVISION` in `src/train_bert.py` |
+| Restaurant training-data revision | `8885372fe73256f96bb60f65b550538ac5c26047` | `scripts/download_data.py` |
+| Laptop training-data revision | `4d69e3de15751c40ac3829ccd31c3fa190f2068f` | `scripts/download_data.py` |
+
+The trainers seed Python, NumPy and PyTorch with the training seed, and pass
+`data_seed=2026` to Trainer. Training seeds do not resample the validation split
+or labelled subsets. Report arithmetic means and sample standard deviations
+across the three training seeds; these are not confidence intervals.
+The `updatematch10` name denotes an approximate update-budget control: 30 epochs
+at 10% give 1,260 Restaurant / 840 Laptop updates, versus 1,215 / 786 for
+three full-data epochs. It is not an exact step-matched experiment.
+
+The recorded final training environment used CUDA and PyTorch
+`2.10.0a0+a36e1d39eb.nvinternal.main.41386253`. The CPU requirements in Section 1
+are a separate environment, not an exact reconstruction of that NVIDIA build.
+Exact historical environment reproduction requires the original container/image
+from the training author; its image identifier is not recorded here.
+Matching seeds alone does not guarantee identical scores across devices or builds.
+
+### A. Verify and rebuild the committed results (no training)
+
+Activate the environment and prepare/check the data as in Sections 1–2. On macOS,
+use `(cd data && shasum -a 256 -c checksums.sha256)` if `sha256sum` is unavailable.
+Then run:
+
+```bash
+python -m src.evidence
+bash scripts/reproduce.sh
+python -m scripts.summarize_robustness
+python -m unittest discover -s tests -v
+```
+
+The evidence validator checks 90 canonical evaluations: 48 main in-domain,
+12 identity, 12 pooling, 12 constituency and six transfer evaluations.
+The robustness summarizer additionally validates its saved supplementary records.
+These commands use saved predictions and need no model checkpoints or Stanza
+model download. Rebuilding rewrites derived tables and analysis files, not training
+results. PDF generation additionally requires the external report/slide sources
+listed in Section 4; those sources are not included in this branch.
+
+### B. Retrain the final experiments in a separate checkout
+
+Use a separate checkout/output workspace for new training, preserving the published
+records. Runners reuse validated artifacts, so running them over the submitted
+results is a resume operation, not proof of fresh training. A clean experiment
+workspace has prepared data but no previous run JSONs, predictions or checkpoints.
+Do not use `--force` on the published-results workspace.
+
+For the existing extension runners, use a CUDA-enabled environment: the accelerated
+runner requires CUDA, and extension evidence currently expects `device=cuda:0`.
+Do not install the CPU-pinned requirements over an existing CUDA environment.
+Retain its PyTorch build and install the remaining dependencies from the requirements
+file, plus `stanza==1.10.1`. For example, after activating a CUDA environment:
+
+```bash
+python -c "from pathlib import Path; Path('/tmp/group23-requirements-without-torch.txt').write_text(''.join(line for line in Path('requirements.txt').read_text().splitlines(keepends=True) if not line.startswith('torch==')))"
+python -m pip install -r /tmp/group23-requirements-without-torch.txt
+python -m pip install stanza==1.10.1
+python -c "import torch; print(torch.__version__); assert torch.cuda.is_available(), 'CUDA is required by the extension runner'"
+export HF_HUB_OFFLINE=0
+export ACCELERATE_USE_CPU=false
+export CISC473_DYNAMIC_PADDING=1
+export JOBS=1
+export CUDA_WORKERS=1
+```
+
+One worker limits concurrent GPU memory usage; it does not change the configured
+batch size or training epochs. Constituency preprocessing requires the frozen
+parser resources used by the implementation:
+
+```bash
+export STANZA_RESOURCES_DIR="$PWD/stanza_resources"
+python -c "import os, stanza; stanza.download('en', model_dir=os.environ['STANZA_RESOURCES_DIR'], processors={'tokenize':'combined','pos':'combined_charlm','constituency':'ptb3-revised_charlm'}, package=None, resources_version='1.10.0')"
+python -m src.constituency_graph
+```
+
+This builds the training-text parse cache for both domains. The trainer builds
+unlabelled test parses during final evaluation. Parser identity and phrase-graph
+rules are defined in `src/constituency_graph.py`.
+
+Run the following stages in order:
+
+```bash
+# 48 main in-domain + 12 identity training runs, followed by six transfers.
+bash scripts/run_sweep.sh --runs-only
+
+# Two domains x two budgets (10%, 100%) x three seeds per extension.
+python -m scripts.run_accelerated_shard --extension pooling
+python -m scripts.run_accelerated_shard --extension constituency
+
+# 36 alternative-subset runs + 12 longer-10%-training runs.
+python -m scripts.run_robustness subset2027 updatematch10
+
+# Validate and rebuild summaries after all required runs exist.
+python -m src.evidence
+bash scripts/reproduce.sh
+python -m scripts.summarize_robustness
+```
+
+This sequence covers 132 training runs and six transfer evaluations (138 total).
+The optional BERT 1/2/4-epoch sweep is outside this final matrix.
+`reproduce.sh --train` alone covers only the main/identity grid and transfer;
+it does not launch the two extension grids or the robustness grids.
+
+For inspection, one existing runner command takes the model, domain, fraction,
+seed and graph type explicitly:
+
+```bash
+python -m scripts.run_one gcn restaurant 0.1 42 identity
+```
+
+The corresponding graph choices for the final comparison are `dependency`,
+`identity`, `pooling` and `constituency`. Pooling removes the GCN layers;
+identity retains the layers with self-loops only. All main and extension runs
+use three epochs, batch size 8, learning rate 2e-5, weight decay 0.01,
+maximum length 128 and validation-macro-F1 checkpoint selection.
